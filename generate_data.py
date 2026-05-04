@@ -40,20 +40,20 @@ def generate_users(n=50):
 
 
 def apply_followback(users, followback_rate=0.5):
-    # collect all directed edges
+
     edges = set()
     for user in users:
         for neighbor_id in user["connections"]:
             edges.add((user["id"], neighbor_id))
 
-    # for one-way follows, maybe add reverse edge
+
     new_edges = set(edges)
     for (a, b) in edges:
         if (b, a) not in edges:
             if random.random() < followback_rate:
                 new_edges.add((b, a))
 
-    # rebuild connections from new edge set
+
     adjacency = {user["id"]: [] for user in users}
     for (a, b) in new_edges:
         adjacency[a].append(b)
@@ -92,7 +92,7 @@ with open("dataset_50.json", "w") as f:
 
 print("Dataset generated!")
 
-# quick sanity check
+
 total_follows = sum(len(u["connections"]) for u in users)
 mutual = sum(
     1 for u in users for c in u["connections"]
