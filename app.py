@@ -9,57 +9,14 @@ from connection_finding import get_all_suggestions, get_mutual_friends, jaccard_
 
 app = Flask(__name__)
 
-
-# ──────────────────────────────────────────────────────────
-# ROUTE 1: Home page
-#
-# Just renders the HTML template.
-# The browser hits this first when you open the app.
-# ──────────────────────────────────────────────────────────
-
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# ──────────────────────────────────────────────────────────
-# ROUTE 2: Get ranked feed
-#
-# Returns all posts sorted by engagement score.
-# This is the core of Module 4 (Feed Ranking).
-#
-# URL: GET /feed
-#
-# Example response:
-# [
-#   { "id": 107, "score": 312.4, "author_name": "Thomas Bernard", ... },
-#   { "id": 105, "score": 298.1, "author_name": "Bob Leclerc", ... },
-#   ...
-# ]
-# ──────────────────────────────────────────────────────────
-
 @app.route("/feed-page")
 def feed_page(): 
     return render_template("feed.html") 
-
-
-
-# ──────────────────────────────────────────────────────────
-# ROUTE 3: Get suggested connections (Module 1 — BFS)
-#
-# Given a user_id, find people they are NOT connected to
-# but share mutual connections with.
-#
-# URL: GET /connections/<user_id>
-#
-# Algorithm: BFS up to 2 degrees of separation
-#   - Degree 1 = direct connections (skip these)
-#   - Degree 2 = connections of connections (suggest these)
-#
-# Example: Khushi (id=1) is connected to Rahul (2) and Zijie (3)
-#   Rahul is connected to Alice (4) → suggest Alice to Khushi
-#   Zijie is connected to Bob (5)   → suggest Bob to Khushi
-# ──────────────────────────────────────────────────────────
 
 @app.route("/connections/<int:user_id>")
 def suggested_connections(user_id):
@@ -67,18 +24,17 @@ def suggested_connections(user_id):
         return jsonify({"error": "User not found"}), 404
 
     # BFS setup
-    visited    = set()       # users we have already explored
-    queue      = [user_id]   # start from the given user
-    direct     = set(adjacency[user_id])  # degree-1 connections
-    suggestions = []         # degree-2 connections to suggest
+    visited    = set()   
+    queue      = [user_id]  
+    direct     = set(adjacency[user_id])  
+    suggestions = [] 
 
     visited.add(user_id)
 
-    # Level 1: visit direct connections
+
     for neighbor in adjacency[user_id]:
         visited.add(neighbor)
 
-    # Level 2: visit connections-of-connections
     for neighbor in adjacency[user_id]:
         for second_degree in adjacency.get(neighbor, []):
             if (
@@ -99,13 +55,6 @@ def suggested_connections(user_id):
     return jsonify(suggestions)
 
 
-# ──────────────────────────────────────────────────────────
-# ROUTE 4: Get all users
-#
-# Used by the UI to populate the sidebar / user switcher.
-# URL: GET /users
-# ──────────────────────────────────────────────────────────
-
 @app.route("/users")
 def get_users():
     user_list = []
@@ -120,13 +69,6 @@ def get_users():
         })
     return jsonify(user_list)
 
-
-# ──────────────────────────────────────────────────────────
-# ROUTE 5: Get single user profile
-#
-# URL: GET /users/<user_id>
-# Returns full profile info for one user.
-# ──────────────────────────────────────────────────────────
 
 @app.route("/users/<int:user_id>")
 def get_user(user_id):
@@ -143,17 +85,6 @@ def get_user(user_id):
         "skills":     user["skills"],
         "connections": len(user["connections"])
     })
-
-
-# ──────────────────────────────────────────────────────────
-# ROUTE 6: Stories navigation (doubly linked list)
-#
-# Builds a story list from recent posts and returns
-# next/previous navigation.
-#
-# URL: GET /stories              → returns first story
-# URL: GET /stories?index=2      → returns story at position 2
-# ──────────────────────────────────────────────────────────
 
 @app.route("/stories")
 def stories():
