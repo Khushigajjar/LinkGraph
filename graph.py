@@ -3,9 +3,7 @@ from datetime import datetime
 with open("dataset.json", "r") as f:
     raw = json.load(f)
 
-
 users = { user["id"]: user for user in raw["users"] }
-
 
 adjacency = { user["id"]: user["connections"] for user in raw["users"] }
 
