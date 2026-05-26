@@ -5,442 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Connections</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --blue:        #0A66C2;
-    --blue-light:  #E8F0FA;
-    --bg:          #F3F2EE;
-    --white:       #FFFFFF;
-    --text:        #191919;
-    --muted:       #666666;
-    --border:      #E0DFDC;
-    --green:       #057642;
-    --green-bg:    #E6F4ED;
-    --teal:        #0096A0;
-    --teal-bg:     #E6F6F7;
-    --radius:      12px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ── NAV ── */
-  nav {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: 0 32px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .nav-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--blue);
-    text-decoration: none;
-  }
-  .nav-logo span { color: var(--text); }
-
-  .nav-links { display: flex; gap: 6px; }
-
-  .nav-link {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    color: var(--muted);
-    transition: all 0.15s;
-    border: 1px solid transparent;
-  }
-
-  .nav-link:hover  { background: var(--bg); color: var(--text); }
-  .nav-link.active { background: var(--blue); color: white; border-color: var(--blue); }
-
-  /* ── LAYOUT ── */
-  .layout {
-    max-width: 1060px;
-    margin: 28px auto;
-    padding: 0 16px;
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 20px;
-    align-items: start;
-  }
-
-  /* ── PAGE HEADER ── */
-  .page-header {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .page-title    { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-  .page-subtitle { font-size: 13px; color: var(--muted); }
-
-  .algo-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--teal-bg);
-    color: var(--teal);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  /* ── SECTION TABS ── */
-  .section-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-
-  .section-tab {
-    padding: 7px 18px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--white);
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .section-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
-
-  /* ── CONNECTION CARD ── */
-  .conn-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 12px;
-    animation: fadeUp 0.35s ease forwards;
-    opacity: 0;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .conn-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid var(--teal-bg);
-  }
-
-  .conn-body { flex: 1; min-width: 0; }
-
-  .conn-name     { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-  .conn-headline { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-
-  /* BFS degree badge */
-  .degree-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-  }
-
-  .degree-2 { background: var(--teal-bg);  color: var(--teal); }
-  .degree-3 { background: var(--blue-light); color: var(--blue); }
-
-  /* Jaccard score bar */
-  .jaccard-wrap {
-    margin-bottom: 8px;
-  }
-
-  .jaccard-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-
-  .jaccard-label strong { color: var(--teal); font-weight: 600; }
-
-  .jaccard-track {
-    height: 5px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .jaccard-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--teal), var(--blue));
-    border-radius: 4px;
-    transition: width 0.7s ease;
-  }
-
-  /* mutual friends row */
-  .mutual-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  .mutual-avatars {
-    display: flex;
-  }
-
-  .mutual-avatars img {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid var(--white);
-    margin-left: -5px;
-  }
-
-  .mutual-avatars img:first-child { margin-left: 0; }
-
-  .mutual-text {
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .mutual-text strong { color: var(--text); }
-
-  /* shared skills */
-  .shared-skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 8px;
-  }
-
-  .skill-tag {
-    font-size: 10px;
-    background: var(--teal-bg);
-    color: var(--teal);
-    padding: 2px 7px;
-    border-radius: 10px;
-    font-weight: 500;
-  }
-
-  /* connect button */
-  .connect-btn {
-    flex-shrink: 0;
-    padding: 7px 16px;
-    border-radius: 20px;
-    border: 1.5px solid var(--blue);
-    background: none;
-    color: var(--blue);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-    white-space: nowrap;
-    align-self: center;
-  }
-
-  .connect-btn:hover { background: var(--blue); color: white; }
-
-  .connect-btn.connected {
-    background: var(--green-bg);
-    color: var(--green);
-    border-color: var(--green);
-    cursor: default;
-  }
-
-  /* ── DIRECT CONNECTIONS (My Network tab) ── */
-  .direct-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: fadeUp 0.3s ease forwards;
-    opacity: 0;
-  }
-
-  .direct-card img {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--green-bg);
-  }
-
-  .direct-info { flex: 1; min-width: 0; }
-  .direct-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-  .direct-headline { font-size: 12px; color: var(--muted); }
-
-  .connected-tag {
-    font-size: 11px;
-    font-weight: 600;
-    background: var(--green-bg);
-    color: var(--green);
-    padding: 3px 10px;
-    border-radius: 10px;
-    flex-shrink: 0;
-  }
-
-  /* ── SIDEBAR ── */
-  .card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-
-  .sidebar-section { padding: 16px; }
-  .sidebar-section + .sidebar-section { border-top: 1px solid var(--border); }
-  .sidebar-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-
-  .user-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.15s;
-  }
-
-  .user-pill:hover  { background: var(--bg); }
-  .user-pill.active { background: var(--teal-bg); }
-
-  .user-pill img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    object-fit: cover;
-  }
-
-  .pill-name    { font-size: 13px; font-weight: 500; }
-  .pill-company { font-size: 11px; color: var(--muted); }
-
-  /* algo steps */
-  .algo-step {
-    display: flex;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .algo-step:last-child { border-bottom: none; }
-
-  .step-num {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--teal);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .step-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
-  .step-text strong { color: var(--text); }
-
-  /* stats row */
-  .stats-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .stat-box {
-    flex: 1;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    text-align: center;
-  }
-
-  .stat-box-num   { font-size: 24px; font-weight: 700; color: var(--teal); }
-  .stat-box-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* skeleton */
-  .skeleton {
-    background: linear-gradient(90deg, var(--bg) 25%, #e8e8e4 50%, var(--bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-    border-radius: 6px;
-    height: 14px;
-    margin-bottom: 8px;
-  }
-
-  @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  .skeleton-avatar {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: linear-gradient(90deg, var(--bg) 25%, #e8e8e4 50%, var(--bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-</style>
+<link rel="stylesheet" href="/templates/CSS/connection.css">
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
-  <div class="nav-links">
+
+  <div class="nav-center">
     <a class="nav-link" href="/feed-page">Feed Ranking</a>
     <a class="nav-link active" href="/connections-page">Connections</a>
     <a class="nav-link" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
+  </div>
+
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user"></span>
+    <img class="nav-avatar" id="nav-avatar" src="" alt=""
+         onerror="this.style.display='none'">
+    <a href="/logout" class="signout">Sign out</a>
   </div>
 </nav>
 
@@ -454,12 +38,8 @@
     <div class="page-header">
       <div>
         <div class="page-title">Connection Finding</div>
-        <div class="page-subtitle">2nd degree suggestions via BFS + Jaccard similarity scoring</div>
       </div>
-      <div class="algo-tag">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-        BFS + Jaccard
-      </div>
+      
     </div>
 
     <!-- Stats row -->
@@ -522,13 +102,12 @@
   <!-- RIGHT: Sidebar -->
   <aside>
 
-    <!-- User switcher -->
     <div class="card">
-      <div class="sidebar-section">
-        <div class="sidebar-title">Viewing as</div>
-        <div id="user-list"></div>
-      </div>
-    </div>
+  <div class="sidebar-section">
+    <div class="sidebar-title">My Skills</div>
+    <div id="my-skills" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </div>
+</div>
 
     <!-- Algorithm explainer -->
     <div class="card">
@@ -549,255 +128,213 @@
 
 
 <script>
-  let allUsers      = [];
-  let currentUserId = 1;
-  let currentTab    = 'suggestions';
+ let allUsers   = [];
+let currentTab = 'suggestions';
 
-  async function init() {
-    const res = await fetch('/users');
-    allUsers  = await res.json();
-    renderUserSwitcher(allUsers);
-    await selectUser(1);
+async function init() {
+
+  const meRes = await fetch('/me');
+    if (meRes.status === 401) { window.location.href = '/login'; return; }
+    const me = await meRes.json();
+  document.getElementById('nav-user').textContent = me.name.split(' ')[0];
+  document.getElementById('nav-avatar').src       = me.avatar;
+  const res = await fetch('/users');
+  allUsers  = await res.json();
+  await loadCurrentTab();
+  await loadMySkills();
+
+  
+}
+
+async function loadMySkills() {
+  const res  = await fetch('/me');
+  const me   = await res.json();
+
+  const container = document.getElementById('my-skills');
+  if (!container) return;
+
+  container.innerHTML = (me.skills || []).map(s =>
+    `<span class="skill-tag">${s}</span>`
+  ).join('');
+}
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-suggestions').style.display = tab === 'suggestions' ? 'block' : 'none';
+  document.getElementById('tab-network').style.display     = tab === 'network'     ? 'block' : 'none';
+  document.getElementById('tab-skills').style.display      = tab === 'skills'      ? 'block' : 'none';
+  loadCurrentTab();
+}
+
+async function loadCurrentTab() {
+  if (currentTab === 'suggestions') await loadSuggestions();
+  if (currentTab === 'network')     await loadMyNetwork();
+  if (currentTab === 'skills')      await loadSkillMatches();
+}
+
+// ── BFS Suggestions ────────────────────────────────────
+async function loadSuggestions() {
+  const container = document.getElementById('suggestions-container');
+  container.innerHTML = skeletonCard() + skeletonCard();
+
+  const res  = await fetch('/suggestions');
+  const data = await res.json();
+
+  const bfs = data.filter(s => s.source === 'network');
+  document.getElementById('stat-suggestions').textContent = bfs.length;
+
+  if (!bfs.length) {
+    container.innerHTML = '<div class="empty-state">No BFS suggestions found.</div>';
+    return;
   }
 
-  function renderUserSwitcher(users) {
-    const container = document.getElementById('user-list');
-    container.innerHTML = users.map(u => `
-      <button class="user-pill ${u.id === currentUserId ? 'active' : ''}"
-              id="pill-${u.id}" onclick="selectUser(${u.id})">
-        <img src="${u.avatar}" alt="${u.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0096A0&color=fff&size=64'">
-        <div>
-          <div class="pill-name">${u.name.split(' ')[0]}</div>
-          <div class="pill-company">${u.company}</div>
-        </div>
-      </button>
-    `).join('');
-  }
+  container.innerHTML = '';
+  bfs.forEach((person, index) => {
+    const delay    = index * 70;
+    const barWidth = (person.jaccard_score * 100).toFixed(0);
+    const mutuals  = person.mutual_friends || [];
 
-  async function selectUser(userId) {
-    currentUserId = userId;
-    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('active'));
-    const pill = document.getElementById(`pill-${userId}`);
-    if (pill) pill.classList.add('active');
-    await loadCurrentTab();
-  }
-
-  function switchTab(tab, btn) {
-    currentTab = tab;
-    document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-suggestions').style.display = tab === 'suggestions' ? 'block' : 'none';
-    document.getElementById('tab-network').style.display     = tab === 'network'     ? 'block' : 'none';
-    document.getElementById('tab-skills').style.display      = tab === 'skills'      ? 'block' : 'none';
-    loadCurrentTab();
-  }
-
-  async function loadCurrentTab() {
-    if (currentTab === 'suggestions') await loadSuggestions();
-    if (currentTab === 'network')     await loadMyNetwork();
-    if (currentTab === 'skills')      await loadSkillMatches();
-  }
-
-  // ── BFS Suggestions ────────────────────────────────────
-  async function loadSuggestions() {
-    const container = document.getElementById('suggestions-container');
-    container.innerHTML = skeletonCard() + skeletonCard();
-
-    const res  = await fetch(`/suggestions/${currentUserId}`);
-    const data = await res.json();
-
-    // filter only network-based BFS suggestions
-    const bfs = data.filter(s => s.source === 'network');
-
-    // update stat
-    document.getElementById('stat-suggestions').textContent = bfs.length;
-
-    if (!bfs.length) {
-      container.innerHTML = '<div class="empty-state">No BFS suggestions found.<br>Try switching to a different user.</div>';
-      return;
-    }
-
-    container.innerHTML = '';
-    bfs.forEach((person, index) => {
-      const delay      = index * 70;
-      const barWidth   = (person.jaccard_score * 100).toFixed(0);
-      const mutuals    = person.mutual_friends || [];
-
-      const el = document.createElement('div');
-      el.className = 'conn-card';
-      el.style.animationDelay = `${delay}ms`;
-      el.innerHTML = `
-        <img class="conn-avatar"
-             src="${person.avatar}"
-             alt="${person.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&background=0096A0&color=fff&size=112'">
-
-        <div class="conn-body">
-          <div class="conn-name">${person.name}</div>
-          <div class="conn-headline">${person.headline}</div>
-
-          <span class="degree-badge degree-2">2nd degree connection</span>
-
-          <div class="jaccard-wrap">
-            <div class="jaccard-label">
-              <span>Network overlap (Jaccard)</span>
-              <strong>${(person.jaccard_score * 100).toFixed(0)}%</strong>
-            </div>
-            <div class="jaccard-track">
-              <div class="jaccard-fill" style="width: ${barWidth}%"></div>
-            </div>
+    const el = document.createElement('div');
+    el.className = 'conn-card';
+    el.style.animationDelay = `${delay}ms`;
+    el.innerHTML = `
+      <img class="conn-avatar"
+           src="${person.avatar}"
+           alt="${person.name}"
+           onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&background=0096A0&color=fff&size=112'">
+      <div class="conn-body">
+        <div class="conn-name">${person.name}</div>
+        <div class="conn-headline">${person.headline}</div>
+        
+        <div class="jaccard-wrap">
+          <div class="jaccard-label">
           </div>
-
-          ${mutuals.length ? `
-          <div class="mutual-row">
-            <div class="mutual-avatars">
-              ${mutuals.slice(0, 3).map(m => `
-                <img src="${m.avatar}"
-                     alt="${m.name}"
-                     onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=0077B5&color=fff&size=40'">
-              `).join('')}
-            </div>
-            <span class="mutual-text">
-              <strong>${mutuals[0].name}</strong>
-              ${mutuals.length > 1 ? `and ${mutuals.length - 1} other${mutuals.length > 2 ? 's' : ''} ` : ''}
-              in common
-            </span>
-          </div>` : ''}
-
-        </div>
-
-        <button class="connect-btn" onclick="handleConnect(this)">+ Connect</button>
-      `;
-      container.appendChild(el);
-    });
-  }
-
-  // ── My Network (direct connections) ───────────────────
-  async function loadMyNetwork() {
-    const container = document.getElementById('network-container');
-    container.innerHTML = '<div class="direct-card" style="opacity:1"><div class="skeleton-avatar" style="width:46px;height:46px"></div><div style="flex:1"><div class="skeleton" style="width:55%"></div><div class="skeleton" style="width:40%"></div></div></div>';
-
-    const user = allUsers.find(u => u.id === currentUserId);
-    if (!user) return;
-
-    // get all users and filter direct connections
-    const directIds   = await getDirectIds(currentUserId);
-    const directUsers = allUsers.filter(u => directIds.includes(u.id));
-
-    // update stat
-    document.getElementById('stat-direct').textContent = directUsers.length;
-
-    if (!directUsers.length) {
-      container.innerHTML = '<div class="empty-state">This user has no direct connections yet.</div>';
-      return;
-    }
-
-    container.innerHTML = '';
-    directUsers.forEach((person, index) => {
-      const delay = index * 60;
-      const el    = document.createElement('div');
-      el.className = 'direct-card';
-      el.style.animationDelay = `${delay}ms`;
-      el.innerHTML = `
-        <img src="${person.avatar}" alt="${person.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&background=057642&color=fff&size=92'">
-        <div class="direct-info">
-          <div class="direct-name">${person.name}</div>
-          <div class="direct-headline">${person.headline}</div>
-        </div>
-        <span class="connected-tag">✓ Connected</span>
-      `;
-      container.appendChild(el);
-    });
-  }
-
-  // ── Skill matches ──────────────────────────────────────
-  async function loadSkillMatches() {
-    const container = document.getElementById('skills-container');
-    container.innerHTML = skeletonCard();
-
-    const res  = await fetch(`/suggestions/${currentUserId}`);
-    const data = await res.json();
-
-    const skillBased = data.filter(s => s.source === 'skills');
-
-    // update stat
-    document.getElementById('stat-skill').textContent = skillBased.length;
-
-    if (!skillBased.length) {
-      container.innerHTML = '<div class="empty-state">No skill-based matches found.<br>Try switching to a different user.</div>';
-      return;
-    }
-
-    container.innerHTML = '';
-    skillBased.forEach((person, index) => {
-      const delay    = index * 70;
-      const barWidth = ((person.skill_overlap || 0) * 100).toFixed(0);
-
-      const el = document.createElement('div');
-      el.className = 'conn-card';
-      el.style.animationDelay = `${delay}ms`;
-      el.innerHTML = `
-        <img class="conn-avatar"
-             src="${person.avatar}"
-             alt="${person.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&background=0096A0&color=fff&size=112'">
-
-        <div class="conn-body">
-          <div class="conn-name">${person.name}</div>
-          <div class="conn-headline">${person.headline}</div>
-
-          <div class="jaccard-wrap" style="margin-top:8px">
-            <div class="jaccard-label">
-              <span>Skill Jaccard overlap</span>
-              <strong>${barWidth}%</strong>
-            </div>
-            <div class="jaccard-track">
-              <div class="jaccard-fill" style="width: ${barWidth}%"></div>
-            </div>
-          </div>
-
-          <div class="shared-skills">
-            ${(person.shared_skills || []).map(s =>
-              `<span class="skill-tag">${s}</span>`
-            ).join('')}
+          <div class="jaccard-track">
+            <div class="jaccard-fill" style="width: ${barWidth}%"></div>
           </div>
         </div>
+        ${mutuals.length ? `
+        <div class="mutual-row">
+          <div class="mutual-avatars">
+            ${mutuals.slice(0, 3).map(m => `
+              <img src="${m.avatar}" alt="${m.name}"
+                   onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=0077B5&color=fff&size=40'">
+            `).join('')}
+          </div>
+          <span class="mutual-text">
+            <strong>${mutuals[0].name}</strong>
+            ${mutuals.length > 1 ? `and ${mutuals.length - 1} other${mutuals.length > 2 ? 's' : ''} ` : ''}
+            in common
+          </span>
+        </div>` : ''}
+      </div>
+      <button class="connect-btn" onclick="handleConnect(this)">+ Connect</button>
+    `;
+    container.appendChild(el);
+  });
+}
 
-        <button class="connect-btn" onclick="handleConnect(this)">+ Connect</button>
-      `;
-      container.appendChild(el);
-    });
+// ── My Network ─────────────────────────────────────────
+async function loadMyNetwork() {
+  const container = document.getElementById('network-container');
+  container.innerHTML = skeletonCard();
+
+  // get current user's profile to find their connections
+  const res  = await fetch('/me');
+  const me   = await res.json();
+
+  const directUsers = allUsers.filter(u => (me.connections_list || []).includes(u.id));
+  document.getElementById('stat-direct').textContent = directUsers.length;
+
+  if (!directUsers.length) {
+    container.innerHTML = '<div class="empty-state">No direct connections yet.</div>';
+    return;
   }
 
-  // ── Helpers ────────────────────────────────────────────
-  async function getDirectIds(userId) {
-    const res  = await fetch(`/users/${userId}`);
-    const data = await res.json();
-    // get connections from the full user list
-    const user = allUsers.find(u => u.id === userId);
-    return user ? user.connections || [] : [];
+  container.innerHTML = '';
+  directUsers.forEach((person, index) => {
+    const el = document.createElement('div');
+    el.className = 'direct-card';
+    el.style.animationDelay = `${index * 60}ms`;
+    el.innerHTML = `
+      <img src="${person.avatar}" alt="${person.name}"
+           onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&background=057642&color=fff&size=92'">
+      <div class="direct-info">
+        <div class="direct-name">${person.name}</div>
+        <div class="direct-headline">${person.headline}</div>
+      </div>
+      <span class="connected-tag">Connected</span>
+    `;
+    container.appendChild(el);
+  });
+}
+
+// ── Skill Matches ──────────────────────────────────────
+async function loadSkillMatches() {
+  const container = document.getElementById('skills-container');
+  container.innerHTML = skeletonCard();
+
+  const res  = await fetch('/suggestions');
+  const data = await res.json();
+
+  const skillBased = data.filter(s => s.source === 'skills');
+  document.getElementById('stat-skill').textContent = skillBased.length;
+
+  if (!skillBased.length) {
+    container.innerHTML = '<div class="empty-state">No skill-based matches found.</div>';
+    return;
   }
 
-  function handleConnect(btn) {
-    btn.textContent = '✓ Sent';
-    btn.classList.add('connected');
-  }
-
-  function skeletonCard() {
-    return `
-      <div class="conn-card" style="opacity:1">
-        <div class="skeleton-avatar"></div>
-        <div style="flex:1">
-          <div class="skeleton" style="width:50%"></div>
-          <div class="skeleton" style="width:70%"></div>
-          <div class="skeleton" style="width:35%"></div>
+  container.innerHTML = '';
+  skillBased.forEach((person, index) => {
+    const barWidth = ((person.skill_overlap || 0) * 100).toFixed(0);
+    const el = document.createElement('div');
+    el.className = 'conn-card';
+    el.style.animationDelay = `${index * 70}ms`;
+    el.innerHTML = `
+      <img class="conn-avatar"
+           src="${person.avatar}"
+           alt="${person.name}"
+           onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&background=0096A0&color=fff&size=112'">
+      <div class="conn-body">
+        <div class="conn-name">${person.name}</div>
+        <div class="conn-headline">${person.headline}</div>
+        <div class="jaccard-wrap" style="margin-top:8px">
+          
+          <div class="jaccard-track">
+            <div class="jaccard-fill" style="width: ${barWidth}%"></div>
+          </div>
         </div>
-      </div>`;
-  }
+        <div class="shared-skills">
+          ${(person.shared_skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+        </div>
+      </div>
+      <button class="connect-btn" onclick="handleConnect(this)">+ Connect</button>
+    `;
+    container.appendChild(el);
+  });
+}
 
-  init();
+function handleConnect(btn) {
+  btn.textContent = '✓ Sent';
+  btn.classList.add('connected');
+}
+
+function skeletonCard() {
+  return `
+    <div class="conn-card" style="opacity:1">
+      <div class="skeleton-avatar"></div>
+      <div style="flex:1">
+        <div class="skeleton" style="width:50%"></div>
+        <div class="skeleton" style="width:70%"></div>
+        <div class="skeleton" style="width:35%"></div>
+      </div>
+    </div>`;
+}
+
+init();
 </script>
 </body>
 </html>

@@ -5,447 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --blue:       #0A66C2;
-    --blue-light: #E8F0FA;
-    --blue-dark:  #004182;
-    --bg:         #F3F2EE;
-    --white:      #FFFFFF;
-    --text:       #191919;
-    --muted:      #666666;
-    --border:     #E0DFDC;
-    --card:       #FFFFFF;
-    --green:      #057642;
-    --radius:     12px;
-  }
+<link rel="stylesheet" href="/templates/CSS/index.css">
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ── NAV ── */
-  nav {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .nav-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--blue);
-    letter-spacing: -0.5px;
-    flex-shrink: 0;
-  }
-
-  .nav-logo span { color: var(--text); }
-
-  .nav-tabs {
-    display: flex;
-    gap: 4px;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .nav-tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 8px 18px;
-    cursor: pointer;
-    border-radius: 8px;
-    font-size: 12px;
-    color: var(--muted);
-    border: none;
-    background: none;
-    transition: color 0.15s, background 0.15s;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .nav-tab svg { width: 20px; height: 20px; }
-
-  .nav-tab:hover { background: var(--bg); color: var(--text); }
-
-  .nav-tab.active {
-    color: var(--text);
-    border-bottom: 2px solid var(--text);
-    border-radius: 0;
-  }
-
-  /* ── LAYOUT ── */
-  .layout {
-    max-width: 1100px;
-    margin: 24px auto;
-    padding: 0 16px;
-    display: grid;
-    grid-template-columns: 240px 1fr 280px;
-    gap: 20px;
-    align-items: start;
-  }
-
-  /* ── CARD ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  /* ── LEFT SIDEBAR: Profile ── */
-  .profile-card { text-align: center; }
-
-  .profile-banner {
-    height: 56px;
-    background: linear-gradient(135deg, #0A66C2, #0096CC);
-  }
-
-  .profile-avatar-wrap {
-    margin: -28px auto 0;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: 3px solid var(--white);
-    overflow: hidden;
-    background: var(--blue-light);
-  }
-
-  .profile-avatar-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .profile-info { padding: 10px 16px 16px; }
-
-  .profile-name {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-
-  .profile-headline {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.4;
-    margin-bottom: 12px;
-  }
-
-  .profile-stat {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    cursor: pointer;
-  }
-
-  .profile-stat:hover .stat-count { color: var(--blue); }
-
-  .stat-label { color: var(--muted); }
-  .stat-count { font-weight: 600; color: var(--text); }
-
-  /* user switcher */
-  .switcher {
-    padding: 12px;
-    border-top: 1px solid var(--border);
-  }
-
-  .switcher-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
-
-  .user-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.15s;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .user-pill:hover { background: var(--bg); }
-  .user-pill.active { background: var(--blue-light); }
-
-  .user-pill img {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .pill-name {
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* ── FEED ── */
-  .feed-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .feed-tab-btn {
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--white);
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .feed-tab-btn.active {
-    background: var(--blue);
-    color: white;
-    border-color: var(--blue);
-  }
-
-  /* ── POST CARD ── */
-  .post-card {
-    margin-bottom: 12px;
-    padding: 16px;
-    animation: fadeUp 0.3s ease forwards;
-    opacity: 0;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .post-header {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: flex-start;
-  }
-
-  .post-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: var(--blue-light);
-  }
-
-  .post-author-name {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .post-author-headline {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 2px;
-  }
-
-  .post-time { font-size: 11px; color: var(--muted); }
-
-  .post-content {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-
-  .post-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-
-  .tag {
-    font-size: 11px;
-    color: var(--blue);
-    background: var(--blue-light);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 500;
-  }
-
-  /* score badge */
-  .score-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--green);
-    background: #E6F4ED;
-    padding: 3px 10px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-  }
-
-  .score-badge svg { width: 12px; height: 12px; }
-
-  .post-stats {
-    display: flex;
-    gap: 16px;
-    font-size: 12px;
-    color: var(--muted);
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-
-  .stat-item { display: flex; align-items: center; gap: 4px; }
-  .stat-item svg { width: 14px; height: 14px; }
-
-  /* rank badge */
-  .rank-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 700;
-    margin-right: 8px;
-    flex-shrink: 0;
-  }
-
-  .rank-1 { background: #FFD700; color: #7a5900; }
-  .rank-2 { background: #C0C0C0; color: #444; }
-  .rank-3 { background: #CD7F32; color: white; }
-  .rank-other { background: var(--bg); color: var(--muted); }
-
-  /* ── RIGHT SIDEBAR ── */
-  .sidebar-section { padding: 16px; }
-  .sidebar-section + .sidebar-section { border-top: 1px solid var(--border); }
-
-  .sidebar-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-
-  /* connection suggestion card */
-  .connection-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-  }
-
-  .connection-card + .connection-card {
-    border-top: 1px solid var(--border);
-  }
-
-  .connection-card img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .conn-info { flex: 1; min-width: 0; }
-
-  .conn-name {
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .conn-headline {
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .connect-btn {
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1.5px solid var(--blue);
-    background: none;
-    color: var(--blue);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .connect-btn:hover {
-    background: var(--blue);
-    color: white;
-  }
-
-  /* ── LOADING ── */
-  .skeleton {
-    background: linear-gradient(90deg, var(--bg) 25%, #e8e8e4 50%, var(--bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-    border-radius: 6px;
-    height: 14px;
-    margin-bottom: 8px;
-  }
-
-  @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  .skeleton-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(90deg, var(--bg) 25%, #e8e8e4 50%, var(--bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-    flex-shrink: 0;
-  }
-
-  /* ── EMPTY ── */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  /* ── VIEW SELECTOR ── */
-  #view-feed, #view-connections { display: block; }
-</style>
 </head>
 <body>
 
@@ -508,7 +69,7 @@
     <div id="view-feed">
       <div class="feed-tabs">
         <button class="feed-tab-btn active">Ranked feed</button>
-        <button class="feed-tab-btn" style="cursor:default;opacity:0.5">For you</button>
+  
       </div>
       <div id="posts-container">
         <!-- skeleton loaders -->
@@ -542,20 +103,7 @@
 
   <!-- RIGHT: Suggested connections sidebar -->
   <aside>
-    <div class="card">
-      <div class="sidebar-section">
-        <div class="sidebar-title">People you may know</div>
-        <div id="suggestions-list">
-          <div style="display:flex;gap:10px;align-items:center;padding:8px 0">
-            <div class="skeleton-avatar" style="width:40px;height:40px"></div>
-            <div style="flex:1"><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:50%"></div></div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:center;padding:8px 0">
-            <div class="skeleton-avatar" style="width:40px;height:40px"></div>
-            <div style="flex:1"><div class="skeleton" style="width:65%"></div><div class="skeleton" style="width:45%"></div></div>
-          </div>
-        </div>
-      </div>
+    
 
       <div class="sidebar-section">
         <div class="sidebar-title">Skills match</div>
@@ -695,18 +243,18 @@
 
   // ── Connections ───────────────────────────────────────
   async function loadSuggestions(userId) {
-    const res  = await fetch(`/connections/${userId}`);
-    const data = await res.json();
+  const res  = await fetch(`/connections/${userId}`);
+  const data = await res.json();
 
-    // right sidebar
-    const list = document.getElementById('suggestions-list');
+  // RIGHT SIDEBAR (now optional)
+  const list = document.getElementById('suggestions-list');
+  if (list) {   // ✅ check if element exists
     if (!data.length) {
       list.innerHTML = '<div class="empty-state">No suggestions yet</div>';
     } else {
       list.innerHTML = data.map(u => `
         <div class="connection-card">
-          <img src="${u.avatar}" alt="${u.name}"
-               onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0077B5&color=fff&size=80'">
+          <img src="${u.avatar}" alt="${u.name}">
           <div class="conn-info">
             <div class="conn-name">${u.name}</div>
             <div class="conn-headline">${u.headline}</div>
@@ -715,6 +263,9 @@
         </div>
       `).join('');
     }
+  }
+
+  
 
     // connections view (main area)
     const grid = document.getElementById('connections-grid');

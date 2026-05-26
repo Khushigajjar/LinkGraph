@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkGraph — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/templates/CSS/login.css">
+</head>
+<body>
+<div class="login-wrap">
+
+  <div class="logo">Link<span>Graph</span></div>
+
+  <div class="card">
+    <div class="card-title">Sign in</div>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="e.g. alex" autocomplete="off" required>
+        <div class="hint">Your first name in lowercase</div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="linkgraph + your ID" required>
+        
+      </div>
+      <button class="btn" type="submit">Sign in</button>
+    </form>
+  </div>
+
+</div>
+</body>
+</html>

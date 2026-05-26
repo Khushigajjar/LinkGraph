@@ -38,37 +38,42 @@ def bfs_suggestions(user_id):
     if user_id not in users:
         return []
 
-    direct  = set(adjacency.get(user_id, []))   
-    visited = {user_id} | direct                 
-    queue   = list(direct)                       
+    direct   = set(adjacency.get(user_id, []))
+    visited  = {user_id} | direct
+    queue    = [(neighbor, 1) for neighbor in direct]  # (node, depth)
     suggestions = []
 
     while queue:
-        current = queue.pop(0) 
+        current, depth = queue.pop(0)   # FIFO = BFS
 
         for neighbor in adjacency.get(current, []):
             if neighbor not in visited:
                 visited.add(neighbor)
-                queue.append(neighbor)
 
-                
-                mutual       = get_mutual_friends(user_id, neighbor)
-                jaccard_score = jaccard_similarity(user_id, neighbor)
+                # suggest anyone at depth 2 or 3
+                if depth <= 2:
+                    jaccard_score  = jaccard_similarity(user_id, neighbor)
+                    mutual         = get_mutual_friends(user_id, neighbor)
 
-                suggestions.append({
-                    "id":             neighbor,
-                    "name":           users[neighbor]["name"],
-                    "avatar":         users[neighbor]["avatar"],
-                    "headline":       users[neighbor]["headline"],
-                    "company":        users[neighbor]["company"],
-                    "skills":         users[neighbor]["skills"],
-                    "mutual_friends": mutual,
-                    "mutual_count":   len(mutual),
-                    "jaccard_score":  jaccard_score
-                })
+                    suggestions.append({
+                        "id":             neighbor,
+                        "name":           users[neighbor]["name"],
+                        "avatar":         users[neighbor]["avatar"],
+                        "headline":       users[neighbor]["headline"],
+                        "company":        users[neighbor]["company"],
+                        "skills":         users[neighbor]["skills"],
+                        "mutual_friends": mutual,
+                        "mutual_count":   len(mutual),
+                        "jaccard_score":  jaccard_score,
+                        "degree":         depth + 1   # 2nd or 3rd degree
+                    })
 
+                    # only keep expanding if we haven't hit depth 3 yet
+                    if depth < 2:
+                        queue.append((neighbor, depth + 1))
+
+    # sort by jaccard score descending
     suggestions.sort(key=lambda x: x["jaccard_score"], reverse=True)
-
     return suggestions
 
 def skill_based_suggestions(user_id):
@@ -108,24 +113,23 @@ def skill_based_suggestions(user_id):
     suggestions.sort(key=lambda x: x["skill_overlap"], reverse=True)
     return suggestions
 
-
 def get_all_suggestions(user_id):
     network_based = bfs_suggestions(user_id)
     skill_based   = skill_based_suggestions(user_id)
 
-    
-    seen = set()
+    # tag sources but DON'T deduplicate
+    # a person can appear in both tabs — that's fine
     combined = []
 
-   
     for s in network_based:
-        if s["id"] not in seen:
-            seen.add(s["id"])
-            combined.append({**s, "source": "network"})
+        combined.append({**s, "source": "network"})
 
+    # for skills — include everyone with skill overlap
+    # even if they already appear in network tab
+    seen_in_skills = set()
     for s in skill_based:
-        if s["id"] not in seen:
-            seen.add(s["id"])
+        if s["id"] not in seen_in_skills:
+            seen_in_skills.add(s["id"])
             combined.append({**s, "source": "skills"})
 
     return combined

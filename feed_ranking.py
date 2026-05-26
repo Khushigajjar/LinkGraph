@@ -22,38 +22,30 @@ def engagement_score(post):
 
 
 
+comparison_count = 0  # global counter
+
 def merge_sort(post_list):
     if len(post_list) <= 1:
         return post_list
-
-    mid = len(post_list) // 2
-    left  = merge_sort(post_list[:mid])  
-    right = merge_sort(post_list[mid:])  
-
-
+    mid   = len(post_list) // 2
+    left  = merge_sort(post_list[:mid])
+    right = merge_sort(post_list[mid:])
     return merge(left, right)
 
-
 def merge(left, right):
+    global comparison_count
     result = []
-    i = 0 
-    j = 0 
-
-    
+    i = j = 0
     while i < len(left) and j < len(right):
-        score_left  = left[i]["score"]
-        score_right = right[j]["score"]
-
-        if score_left >= score_right:
+        comparison_count += 1          # ← count every comparison
+        if engagement_score(left[i]) >= engagement_score(right[j]):
             result.append(left[i])
             i += 1
         else:
             result.append(right[j])
             j += 1
-
     result.extend(left[i:])
     result.extend(right[j:])
-
     return result
 
 class StoryNode:
@@ -98,18 +90,24 @@ class StoryList:
             return self.current.post
         return None  
 
+def get_ranked_feed(user_id=None, post_list=None):
+    global comparison_count
+    comparison_count = 0
 
-def get_ranked_feed(user_id=None):
-    from graph import adjacency
+    from graph import adjacency, posts as default_posts, enrich_posts
+    source_posts  = post_list if post_list is not None else default_posts
     connected_ids = set(adjacency.get(user_id, [])) if user_id else set()
 
     scored_posts = []
-    for post in posts:
+    for post in source_posts:
         base_score = engagement_score(post)
         if post["author_id"] in connected_ids:
             base_score *= 1.4
-        scored_posts.append({
-            **post,
-            "score": round(base_score, 2)
-        })
-    return enrich_posts(merge_sort(scored_posts))
+        scored_posts.append({**post, "score": round(base_score, 2)})
+
+    import time
+    start        = time.time()
+    sorted_posts = merge_sort(scored_posts)
+    elapsed      = round((time.time() - start) * 1000, 2)
+
+    return enrich_posts(sorted_posts), comparison_count, elapsed

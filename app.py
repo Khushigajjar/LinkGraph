@@ -5,18 +5,38 @@ from content_recommendation import get_recommendations, get_trending_posts, find
 from datetime import datetime
 from community_detection import get_communities, find_influence_hubs, find_skill_clusters
 from connection_finding import get_all_suggestions, get_mutual_friends, jaccard_similarity
-
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for
+from db import verify_login, get_current_user_id
+from graph import users as graph_users
+import mysql.connector
 
 app = Flask(__name__)
+app.secret_key = "linkgraph_secret_2026"
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+@app.route("/me")
+def me():
+    user_id = session.get("user_id", 1)
+    user = users[user_id]
+    return jsonify({
+        "id":               user["id"],
+        "name":             user["name"],
+        "avatar":           user["avatar"],
+        "headline":         user["headline"],
+        "company":          user["company"],
+        "skills":           user["skills"],
+        "connections_list": user["connections"]
+    })
 @app.route("/feed-page")
-def feed_page(): 
-    return render_template("feed.html") 
+def feed_page():
+    redir = require_login()
+    if redir: return redir
+    user = graph_users.get(session["user_id"])
+    return render_template("feed.html", current_user=user)
 
 @app.route("/connections/<int:user_id>")
 def suggested_connections(user_id):
@@ -122,18 +142,15 @@ def stories():
         }
     })
 
-
-@app.route("/recommendations/<int:user_id>")
-def recommendations(user_id):
-    if user_id not in users:
-        return jsonify({"error": "User not found"}), 404
+@app.route("/recommendations")
+def recommendations():
+    user_id = session.get("user_id", 1)
     return jsonify(get_recommendations(user_id))
 
 
-@app.route("/similar/<int:user_id>")
-def similar_users(user_id):
-    if user_id not in users:
-        return jsonify({"error": "User not found"}), 404
+@app.route("/similar")
+def similar_users_route():
+    user_id = session.get("user_id", 1)
     return jsonify(find_similar_users(user_id))
 
 
@@ -149,12 +166,9 @@ def hubs():
 def clusters():
     return jsonify(find_skill_clusters())
 
-
-
-@app.route("/suggestions/<int:user_id>")
-def all_suggestions(user_id):
-    if user_id not in users:
-        return jsonify({"error": "User not found"}), 404
+@app.route("/suggestions")
+def all_suggestions():
+    user_id = session.get("user_id", 1)
     return jsonify(get_all_suggestions(user_id))
 
 @app.route("/mutual/<int:user_id_a>/<int:user_id_b>")
@@ -162,27 +176,113 @@ def mutual(user_id_a, user_id_b):
     return jsonify(get_mutual_friends(user_id_a, user_id_b))
 
 
+import math
+
 @app.route("/feed")
 def feed():
-    user_id = request.args.get("user_id", 1, type=int)
-    ranked  = get_ranked_feed(user_id=user_id)
+    user_id = session.get("user_id", 1)
+
+    # reload posts fresh each time (includes new DB posts)
+    from graph import get_all_posts, enrich_posts as enrich
+    fresh_posts = get_all_posts()
+
+    ranked, comparisons, elapsed = get_ranked_feed(
+        user_id=user_id,
+        post_list=fresh_posts
+    )
+
+    n           = len(ranked)
+    theoretical = round(n * math.log2(n), 1) if n > 1 else 0
 
     for post in ranked:
-        post["timestamp"] = post["timestamp"].strftime("%B %d, %Y")
+        if hasattr(post["timestamp"], "strftime"):
+            post["timestamp"] = post["timestamp"].strftime("%B %d, %Y")
 
-    return jsonify(ranked)
+    return jsonify({
+        "posts": ranked,
+        "stats": {
+            "n":           n,
+            "comparisons": comparisons,
+            "theoretical": theoretical,
+            "elapsed_ms":  elapsed,
+            "algorithm":   "Merge Sort",
+            "complexity":  "O(n log n)"
+        }
+    })
+
+
+@app.route("/post", methods=["POST"])
+def create_post():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    content = request.json.get("content", "").strip()
+    if not content:
+        return jsonify({"error": "Content required"}), 400
+    if len(content) > 1000:
+        return jsonify({"error": "Too long"}), 400
+
+    conn   = mysql.connector.connect(
+        host="localhost", user="root", password="", database="linkgraph"
+    )
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO posts (author_id, content) VALUES (%s, %s)",
+        (user_id, content)
+    )
+    conn.commit()
+    new_id = cursor.lastrowid
+    cursor.close()
+    conn.close()
+
+    return jsonify({"success": True, "id": new_id})
+
 
 @app.route("/recommendations-page")
 def recommendations_page():
+    redir = require_login()
+    if redir: return redir
     return render_template("recommendations.html")
 
 @app.route("/connections-page")
 def connections_page():
+    redir = require_login()
+    if redir: return redir
     return render_template("connections.html")
 
 @app.route("/communities-page")
 def communities_page():
-    return render_template("communities.html")  
+    redir = require_login()
+    if redir: return redir
+    return render_template("communities.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username", "").strip().lower()
+        password = request.form.get("password", "").strip()
+        user_id  = verify_login(username, password)
+
+        if user_id:
+            session["user_id"] = user_id
+            return redirect(url_for("feed_page"))
+        else:
+            error = "Invalid username or password"
+
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+def require_login():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    return None
 
 
 if __name__ == "__main__":

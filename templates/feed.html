@@ -5,482 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Feed</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --blue:       #0A66C2;
-    --blue-light: #E8F0FA;
-    --blue-dark:  #004182;
-    --bg:         #F3F2EE;
-    --white:      #FFFFFF;
-    --text:       #191919;
-    --muted:      #666666;
-    --border:     #E0DFDC;
-    --green:      #057642;
-    --green-bg:   #E6F4ED;
-    --radius:     12px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ── NAV ── */
-  nav {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: 0 32px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .nav-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--blue);
-    text-decoration: none;
-  }
-  .nav-logo span { color: var(--text); }
-
-  .nav-links {
-    display: flex;
-    gap: 6px;
-  }
-
-  .nav-link {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    color: var(--muted);
-    transition: all 0.15s;
-    border: 1px solid transparent;
-  }
-
-  .nav-link:hover { background: var(--bg); color: var(--text); }
-  .nav-link.active {
-    background: var(--blue);
-    color: white;
-    border-color: var(--blue);
-  }
-
-  /* ── LAYOUT ── */
-  .layout {
-    max-width: 960px;
-    margin: 28px auto;
-    padding: 0 16px;
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 20px;
-    align-items: start;
-  }
-
-  /* ── PAGE HEADER ── */
-  .page-header {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .page-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  .page-subtitle {
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .algo-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--blue-light);
-    color: var(--blue);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  /* ── USER SWITCHER ── */
-  .user-switcher {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-
-  .switcher-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 10px;
-    font-weight: 500;
-  }
-
-  .user-pills {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .user-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.15s;
-  }
-
-  .user-pill:hover { background: var(--bg); }
-  .user-pill.active { background: var(--blue-light); }
-
-  .user-pill img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    object-fit: cover;
-  }
-
-  .pill-info { min-width: 0; }
-
-  .pill-name {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .pill-company {
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* ── SCORE EXPLAINER ── */
-  .score-explainer {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-  }
-
-  .explainer-title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-
-  .formula {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 11px;
-    font-family: monospace;
-    color: var(--text);
-    margin-bottom: 12px;
-    line-height: 1.6;
-  }
-
-  .weight-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 0;
-    font-size: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .weight-row:last-child { border-bottom: none; }
-
-  .weight-label { color: var(--muted); }
-
-  .weight-val {
-    font-weight: 600;
-    color: var(--blue);
-    background: var(--blue-light);
-    padding: 1px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-  }
-
-  /* ── POST CARD ── */
-  .post-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 12px;
-    animation: fadeUp 0.35s ease forwards;
-    opacity: 0;
-    position: relative;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* rank ribbon */
-  .rank-ribbon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 12px 0 0 12px;
-  }
-
-  .rank-1 .rank-ribbon { background: #FFD700; }
-  .rank-2 .rank-ribbon { background: #C0C0C0; }
-  .rank-3 .rank-ribbon { background: #CD7F32; }
-  .rank-other .rank-ribbon { background: var(--border); }
-
-  .post-inner { padding-left: 12px; }
-
-  .post-header {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    margin-bottom: 12px;
-  }
-
-  .post-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid var(--blue-light);
-  }
-
-  .post-rank-badge {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 12px;
-  }
-
-  .badge-1 { background: #FFD700; color: #7a5900; }
-  .badge-2 { background: #C0C0C0; color: #444; }
-  .badge-3 { background: #CD7F32; color: white; }
-  .badge-other { background: var(--bg); color: var(--muted); }
-
-  .author-name {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-
-  .author-headline {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 2px;
-  }
-
-  .post-time { font-size: 11px; color: var(--muted); }
-
-  .post-content {
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-
-  .post-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-
-  .tag {
-    font-size: 11px;
-    color: var(--blue);
-    background: var(--blue-light);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 500;
-  }
-
-  /* score breakdown */
-  .score-breakdown {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .score-total {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--green);
-    white-space: nowrap;
-  }
-
-  .score-total span {
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--muted);
-    margin-left: 4px;
-  }
-
-  .score-parts {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .score-part {
-    font-size: 11px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-
-  .score-part strong { color: var(--text); font-weight: 600; }
-
-  .score-part .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  .dot-likes    { background: #0A66C2; }
-  .dot-comments { background: #057642; }
-  .dot-shares   { background: #B24020; }
-  .dot-recency  { background: #E0DFDC; }
-
-  /* engagement bar */
-  .engagement-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .engagement-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--blue), var(--green));
-    border-radius: 4px;
-    transition: width 0.6s ease;
-  }
-
-  .post-stats {
-    display: flex;
-    gap: 20px;
-    font-size: 12px;
-    color: var(--muted);
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-
-  .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .stat-item svg { width: 14px; height: 14px; }
-
-  /* ── SKELETON ── */
-  .skeleton {
-    background: linear-gradient(90deg, var(--bg) 25%, #e8e8e4 50%, var(--bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-    border-radius: 6px;
-    height: 14px;
-    margin-bottom: 8px;
-  }
-
-  @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  .skeleton-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: linear-gradient(90deg, var(--bg) 25%, #e8e8e4 50%, var(--bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-  }
-</style>
+<link rel="stylesheet" href="/templates/CSS/feed.css">
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
-  <div class="nav-links">
+
+  <div class="nav-center">
     <a class="nav-link active" href="/feed-page">Feed Ranking</a>
-    <a class="nav-link" href="/connections-page">Connections</a>
+    <a class="nav-link " href="/connections-page">Connections</a>
     <a class="nav-link" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
+  </div>
+
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user"></span>
+    <img class="nav-avatar" id="nav-avatar" src="" alt=""
+         onerror="this.style.display='none'">
+    <a href="/logout" class="signout">Sign out</a>
   </div>
 </nav>
 
 
 <div class="layout">
 
-  <!-- LEFT: Feed -->
+  <!-- ── LEFT: Feed ── -->
   <div>
+
     <!-- Page header -->
     <div class="page-header">
       <div>
         <div class="page-title">Feed Ranking</div>
-        <div class="page-subtitle">Posts sorted by engagement score using merge sort</div>
       </div>
-      <div class="algo-tag">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-        Merge Sort + Scoring
-      </div>
+      
+    </div>
+
+    <!-- Active filter bar (hidden until a tag is clicked) -->
+    <div class="filter-bar" id="filter-bar" style="display:none">
+      <span style="font-size:12px;color:var(--muted);align-self:center">Filter:</span>
+      <button class="filter-chip active" onclick="clearFilter()">All posts</button>
+      <button class="filter-chip active" id="active-filter-chip"></button>
     </div>
 
     <!-- Posts -->
@@ -488,177 +54,258 @@
       <!-- skeletons -->
       <div class="post-card rank-other" style="opacity:1">
         <div class="rank-ribbon"></div>
-        <div class="post-inner">
-          <div class="post-header">
-            <div class="skeleton-avatar"></div>
-            <div style="flex:1">
-              <div class="skeleton" style="width:55%"></div>
-              <div class="skeleton" style="width:40%"></div>
-            </div>
+        <div class="post-header">
+          <div class="sk-avatar"></div>
+          <div style="flex:1">
+            <div class="skeleton" style="width:55%"></div>
+            <div class="skeleton" style="width:40%"></div>
           </div>
-          <div class="skeleton"></div>
-          <div class="skeleton" style="width:80%"></div>
-          <div class="skeleton" style="width:65%"></div>
         </div>
+        <div class="skeleton"></div>
+        <div class="skeleton" style="width:80%"></div>
       </div>
       <div class="post-card rank-other" style="opacity:1">
         <div class="rank-ribbon"></div>
-        <div class="post-inner">
-          <div class="post-header">
-            <div class="skeleton-avatar"></div>
-            <div style="flex:1">
-              <div class="skeleton" style="width:50%"></div>
-              <div class="skeleton" style="width:38%"></div>
-            </div>
+        <div class="post-header">
+          <div class="sk-avatar"></div>
+          <div style="flex:1">
+            <div class="skeleton" style="width:50%"></div>
+            <div class="skeleton" style="width:38%"></div>
           </div>
-          <div class="skeleton"></div>
-          <div class="skeleton" style="width:75%"></div>
         </div>
+        <div class="skeleton"></div>
+        <div class="skeleton" style="width:72%"></div>
       </div>
     </div>
+
   </div>
 
 
-  <!-- RIGHT: Sidebar -->
+  <!-- ── RIGHT: Sidebar ── -->
+
+
+
+
   <aside>
-    <!-- User switcher -->
-    <div class="user-switcher">
-      <div class="switcher-label">Viewing as</div>
-      <div class="user-pills" id="user-list">
-        <div style="display:flex;gap:8px;align-items:center;padding:6px 0">
-          <div class="skeleton-avatar" style="width:32px;height:32px"></div>
-          <div style="flex:1"><div class="skeleton" style="width:70%;margin:0"></div></div>
-        </div>
+
+
+
+
+    <!-- Create Post box -->
+<div class="sidebar-card" style="padding:14px 16px;margin-bottom:14px;background:white;border-radius:12px;border:1px solid var(--border)">
+  <div style="display:flex;gap:10px;align-items:center">
+    <img id="composer-avatar" src="" alt=""
+         style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--blue-light)"
+         onerror="this.src='https://ui-avatars.com/api/?name=U&background=0077B5&color=fff&size=80'">
+    <button onclick="openComposer()"
+            style="flex:1;text-align:left;padding:10px 16px;border-radius:24px;border:1.5px solid var(--border);background:none;font-size:14px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.15s"
+            onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'"
+            onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+      Share something with your network...
+    </button>
+  </div>
+</div>
+
+<!-- Post composer modal -->
+<div id="composer-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:14px;width:100%;max-width:540px;margin:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+
+    <!-- Modal header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600">Create a post</div>
+      <button onclick="closeComposer()"
+              style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1">✕</button>
+    </div>
+
+    <!-- Author row -->
+    <div style="display:flex;align-items:center;gap:10px;padding:16px 20px 0">
+      <img id="modal-avatar" src="" alt=""
+           style="width:44px;height:44px;border-radius:50%;object-fit:cover"
+           onerror="this.src='https://ui-avatars.com/api/?name=U&background=0077B5&color=fff&size=88'">
+      <div>
+        <div id="modal-name" style="font-size:14px;font-weight:600"></div>
+        <div style="font-size:11px;color:var(--muted)">Post to all connections</div>
       </div>
     </div>
 
-    <!-- Score formula explainer -->
-    <div class="score-explainer">
-      <div class="explainer-title">How scores are calculated</div>
-      <div class="formula">
-        score =<br>
-        &nbsp;(likes × 1)<br>
-        + (comments × 3)<br>
-        + (shares × 5)<br>
-        − (age_hours × 2)
-      </div>
-      <div class="weight-row">
-        <span class="weight-label">Likes weight</span>
-        <span class="weight-val">× 1</span>
-      </div>
-      <div class="weight-row">
-        <span class="weight-label">Comments weight</span>
-        <span class="weight-val">× 3</span>
-      </div>
-      <div class="weight-row">
-        <span class="weight-label">Shares weight</span>
-        <span class="weight-val">× 5</span>
-      </div>
-      <div class="weight-row">
-        <span class="weight-label">Recency penalty</span>
-        <span class="weight-val">− 2/hr</span>
-      </div>
-      <div class="weight-row">
-        <span class="weight-label">Sort algorithm</span>
-        <span class="weight-val">Merge Sort</span>
-      </div>
-      <div class="weight-row">
-        <span class="weight-label">Complexity</span>
-        <span class="weight-val">O(n log n)</span>
+    <!-- Textarea -->
+    <div style="padding:12px 20px">
+      <textarea id="post-content"
+                placeholder="What do you want to talk about?"
+                style="width:100%;min-height:140px;border:none;outline:none;font-size:15px;font-family:DM Sans,sans-serif;color:var(--text);resize:none;line-height:1.6"
+                oninput="updateCharCount()"></textarea>
+      <div style="display:flex;justify-content:flex-end;font-size:11px;color:var(--muted)">
+        <span id="char-count">0</span>/1000
       </div>
     </div>
+
+    <!-- Modal footer -->
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid var(--border)">
+      <div id="post-error" style="font-size:12px;color:#C0392B;flex:1"></div>
+      <button onclick="closeComposer()"
+              style="padding:8px 18px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">
+        Cancel
+      </button>
+      <button id="post-btn" onclick="submitPost()"
+              style="padding:8px 20px;border-radius:20px;background:var(--blue);color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;transition:background 0.15s">
+        Post
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+
+    <div class="sidebar-card" style="margin-bottom:14px">
+    <div style="height:48px;background:linear-gradient(135deg,#0A66C2,#0096CC);border-radius:12px 12px 0 0"></div>
+    <div style="padding:0 16px 16px;text-align:center">
+      <img id="side-avatar"
+           src="" alt=""
+           style="width:52px;height:52px;border-radius:50%;border:3px solid white;margin-top:-26px;object-fit:cover;display:block;margin-left:auto;margin-right:auto"
+           onerror="this.src='https://ui-avatars.com/api/?name=User&background=0077B5&color=fff&size=104'">
+      <div id="side-name"     style="font-size:15px;font-weight:600;margin-top:8px"></div>
+      <div id="side-headline" style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4"></div>
+
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);font-size:12px">
+        <span style="color:var(--muted)">Company</span>
+        <span id="side-company" style="font-weight:600"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);font-size:12px">
+        <span style="color:var(--muted)">Connections</span>
+        <span id="side-connections" style="font-weight:600;color:var(--blue)"></span>
+      </div>
+
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center" id="side-skills"></div>
+    </div>
+  </div>
+
+    <!-- Live Complexity Tracker -->
+    <div class="sidebar-card">
+      <div class="s-section">
+        <div class="s-title">
+          Complexity
+        </div>
+
+        <div class="cstat">
+          <span class="cstat-label">Posts processed (n)</span>
+          <span class="cstat-val loading" id="stat-n">—</span>
+        </div>
+        <div class="cstat">
+          <span class="cstat-label">Operation(n log₂n)</span>
+          <span class="cstat-val loading" id="stat-theoretical">—</span>
+        </div>
+        <div class="cstat">
+          <span class="cstat-label">Comparisons</span>
+          <span class="cstat-val loading" id="stat-actual">—</span>
+        </div>
+        <div class="cstat">
+          <span class="cstat-label">Sort time</span>
+          <span class="cstat-val loading" id="stat-time">—</span>
+        </div>
+        <div class="cstat">
+          <span class="cstat-label">Algorithm</span>
+          <span class="cstat-val" style="color:#7B2D8B;background:#F3E8F6">Merge Sort</span>
+        </div>
+        <div class="cstat">
+          <span class="cstat-label">Complexity</span>
+          <span class="cstat-val green">O(n log n)</span>
+        </div>
+
+        
+      </div>
+    </div>
+
+  
+
+      
+
+    
+
   </aside>
 
 </div>
 
 
 <script>
-  let allUsers      = [];
-  let currentUserId = 1;
+  let allPosts      = [];
   let maxScore      = 1;
+  let activeFilter  = null;
+  let myConnections = [];
 
   async function init() {
+    // load current user for nav
+    const meRes = await fetch('/me');
+    if (meRes.status === 401) { window.location.href = '/login'; return; }
+    const me = await meRes.json();
+    document.getElementById('nav-user').textContent = me.name.split(' ')[0];
+    document.getElementById('nav-avatar').src       = me.avatar;
+    myConnections = me.connections_list || [];
+document.getElementById('composer-avatar').src = me.avatar;
+document.getElementById('modal-avatar').src     = me.avatar;
+document.getElementById('modal-name').textContent = me.name;
+    document.getElementById('side-avatar').src        = me.avatar;
+document.getElementById('side-name').textContent  = me.name;
+document.getElementById('side-headline').textContent = me.headline;
+document.getElementById('side-company').textContent  = me.company;
+document.getElementById('side-connections').textContent = me.connections_list
+  ? me.connections_list.length
+  : '—';
+document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
+  `<span style="font-size:10px;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:10px;font-weight:500">${s}</span>`
+).join('');
 
-  // fetch users
-  const usersRes = await fetch('/users');
-  allUsers = await usersRes.json();
-
-  renderUserSwitcher(allUsers);
-
-  // load feed
-  await loadFeed();
-}
-
-  function renderUserSwitcher(users) {
-    console.log("renderUserSwitcher:", users);
-
-    const container = document.getElementById('user-list');
-
-    container.innerHTML = users.map(u => {
-        console.log("user:", u);
-
-        return `
-          <button class="user-pill ${u.id === currentUserId ? 'active' : ''}"
-                  id="pill-${u.id}" onclick="selectUser(${u.id})">
-
-            <img src="${u.avatar}" alt="${u.name}">
-
-            <div class="pill-info">
-              <div class="pill-name">${u.name.split(' ')[0]}</div>
-              <div class="pill-company">${u.company}</div>
-            </div>
-          </button>
-        `;
-    }).join('');
-}
-  async function selectUser(userId) {
-    currentUserId = userId;
-    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('active'));
-    const pill = document.getElementById(`pill-${userId}`);
-    if (pill) pill.classList.add('active');
     await loadFeed();
   }
 
   async function loadFeed() {
     const container = document.getElementById('posts-container');
-    container.innerHTML = `
-      <div class="post-card rank-other" style="opacity:1">
-        <div class="rank-ribbon"></div>
-        <div class="post-inner">
-          <div class="post-header">
-            <div class="skeleton-avatar"></div>
-            <div style="flex:1">
-              <div class="skeleton" style="width:55%"></div>
-              <div class="skeleton" style="width:40%"></div>
-            </div>
-          </div>
-          <div class="skeleton"></div>
-          <div class="skeleton" style="width:80%"></div>
-        </div>
-      </div>`;
+    container.innerHTML = skeletonPost() + skeletonPost();
 
-    const res = await fetch(`/feed?user_id=${currentUserId}`);
-    const posts = await res.json();
+    const res  = await fetch('/feed');
+    const data = await res.json();
 
-    // find max score for engagement bar scaling
-    maxScore = Math.max(...posts.map(p => p.score), 1);
-    renderPosts(posts);
+    allPosts = data.posts;
+    maxScore = Math.max(...allPosts.map(p => p.score), 1);
+
+    renderStats(data.stats, allPosts);
+    renderPosts(allPosts);
   }
 
+  // ── Render complexity stats ────────────────────────────
+  function renderStats(stats, posts) {
+    // remove loading animation
+    document.querySelectorAll('.cstat-val.loading').forEach(el => {
+      el.classList.remove('loading');
+    });
+
+    document.getElementById('stat-n').textContent           = stats.n;
+    document.getElementById('stat-theoretical').textContent = stats.theoretical;
+    document.getElementById('stat-actual').textContent      = stats.comparisons;
+    document.getElementById('stat-time').textContent        = stats.elapsed_ms + ' ms';
+
+    
+
+    
+  }
+
+  // ── Render posts ───────────────────────────────────────
   function renderPosts(posts) {
     const container = document.getElementById('posts-container');
     container.innerHTML = '';
 
+    if (!posts.length) {
+      container.innerHTML = '<div class="empty-state">No posts match this filter.</div>';
+      return;
+    }
+
     posts.forEach((post, index) => {
       const rankClass  = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
-      const badgeClass = index === 0 ? 'badge-1' : index === 1 ? 'badge-2' : index === 2 ? 'badge-3' : 'badge-other';
-      const delay      = index * 70;
+      const badgeClass = index === 0 ? 'b1' : index === 1 ? 'b2' : index === 2 ? 'b3' : 'bn';
+      const delay      = index * 55;
       const barWidth   = Math.min((post.score / maxScore) * 100, 100).toFixed(1);
-
-      // score parts
-      const likesPoints    = post.likes * 1;
-      const commentsPoints = post.comments * 3;
-      const sharesPoints   = post.shares * 5;
+      const isBoosted  = myConnections.includes(post.author_id);
 
       const el = document.createElement('div');
       el.className = `post-card ${rankClass}`;
@@ -666,74 +313,140 @@
 
       el.innerHTML = `
         <div class="rank-ribbon"></div>
-        <div class="post-inner">
 
-          <div class="post-header">
-            <span class="post-rank-badge ${badgeClass}">${index + 1}</span>
-            <img class="post-avatar"
-                 src="${post.author_avatar}"
-                 alt="${post.author_name}"
-                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name)}&background=0077B5&color=fff&size=92'">
-            <div>
-              <div class="author-name">${post.author_name}</div>
-              <div class="author-headline">${post.author_headline}</div>
-              <div class="post-time">${post.timestamp}</div>
-            </div>
+        <div class="post-header">
+          <span class="rank-badge ${badgeClass}">${index + 1}</span>
+          <img class="post-avatar"
+               src="${post.author_avatar}"
+               alt="${post.author_name}"
+               onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name)}&background=0077B5&color=fff&size=88'">
+          <div style="flex:1;min-width:0">
+            <div class="author-name">${post.author_name}</div>
+            <div class="author-headline">${post.author_headline}</div>
+            <div class="post-time">${post.timestamp}</div>
           </div>
+        </div>
 
-          <p class="post-content">${post.content}</p>
+        
 
-          <div class="post-tags">
-            ${(post.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
-          </div>
+        <p class="post-content">${post.content}</p>
 
-          <!-- Engagement bar -->
-          <div class="engagement-bar">
-            <div class="engagement-fill" style="width: ${barWidth}%"></div>
-          </div>
+        ${(post.tags || []).length ? `
+        <div class="post-tags">
+          ${post.tags.map(t => `
+            <span class="tag ${activeFilter === t ? 'active-tag' : ''}"
+                  onclick="filterByTag('${t}')">#${t}</span>
+          `).join('')}
+        </div>` : ''}
 
-          <!-- Score breakdown -->
-          <div class="score-breakdown">
-            <div class="score-total">
-              ${post.score} <span>score</span>
-            </div>
-            <div class="score-parts">
-              <span class="score-part">
-                <span class="dot dot-likes"></span>
-                Likes <strong>${likesPoints}</strong>
-              </span>
-              <span class="score-part">
-                <span class="dot dot-comments"></span>
-                Comments <strong>${commentsPoints}</strong>
-              </span>
-              <span class="score-part">
-                <span class="dot dot-shares"></span>
-                Shares <strong>${sharesPoints}</strong>
-              </span>
-            </div>
-          </div>
+        
 
-          <div class="post-stats">
-            <span class="stat-item">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
-              ${post.likes} likes
-            </span>
-            <span class="stat-item">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-              ${post.comments} comments
-            </span>
-            <span class="stat-item">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-              ${post.shares} shares
-            </span>
-          </div>
-
+        <div class="post-stats">
+          <span class="si">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
+            ${post.likes} likes
+          </span>
+          <span class="si">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+            ${post.comments} comments
+          </span>
+          <span class="si">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            ${post.shares} shares
+          </span>
         </div>
       `;
-
       container.appendChild(el);
     });
   }
+
+  // ── Tag filter ─────────────────────────────────────────
+  function filterByTag(tag) {
+    if (activeFilter === tag) {
+      clearFilter();
+      return;
+    }
+
+    activeFilter = tag;
+    document.getElementById('filter-bar').style.display = 'flex';
+    document.getElementById('active-filter-chip').textContent = `#${tag}`;
+
+    const filtered = allPosts.filter(p => (p.tags || []).includes(tag));
+    renderPosts(filtered);
+  }
+
+  function clearFilter() {
+    activeFilter = null;
+    document.getElementById('filter-bar').style.display = 'none';
+    renderPosts(allPosts);
+  }
+
+  // ── Skeleton ───────────────────────────────────────────
+  function skeletonPost() {
+    return `
+      <div class="post-card rank-other" style="opacity:1">
+        <div class="rank-ribbon"></div>
+        <div class="post-header">
+          <div class="sk-avatar"></div>
+          <div style="flex:1">
+            <div class="skeleton" style="width:55%"></div>
+            <div class="skeleton" style="width:40%"></div>
+          </div>
+        </div>
+        <div class="skeleton"></div>
+        <div class="skeleton" style="width:75%"></div>
+      </div>`;
+  }
+
+
+
+  function openComposer() {
+  document.getElementById('composer-modal').style.display = 'flex';
+  document.getElementById('post-content').focus();
+}
+
+function closeComposer() {
+  document.getElementById('composer-modal').style.display = 'none';
+  document.getElementById('post-content').value = '';
+  document.getElementById('char-count').textContent = '0';
+  document.getElementById('post-error').textContent = '';
+}
+
+function updateCharCount() {
+  const len = document.getElementById('post-content').value.length;
+  document.getElementById('char-count').textContent = len;
+  document.getElementById('char-count').style.color = len > 900 ? '#C0392B' : 'var(--muted)';
+}
+
+async function submitPost() {
+  const content = document.getElementById('post-content').value.trim();
+  const btn     = document.getElementById('post-btn');
+  const errEl   = document.getElementById('post-error');
+
+  if (!content) {
+    errEl.textContent = 'Please write something first.';
+    return;
+  }
+
+  btn.textContent = 'Posting...';
+  btn.disabled    = true;
+
+  const res  = await fetch('/post', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ content })
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    closeComposer();
+    await loadFeed();   // reload feed to show new post
+  } else {
+    errEl.textContent = data.error || 'Something went wrong.';
+    btn.textContent   = 'Post';
+    btn.disabled      = false;
+  }
+}
 
   init();
 </script>
