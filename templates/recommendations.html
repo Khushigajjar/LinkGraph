@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Recommendations</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/templates/CSS/recommendations.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/recommendations.css') }}">
 
  
 </head>
@@ -14,21 +14,19 @@
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
-  <div class="nav-links">
+
+  <div class="nav-center">
     <a class="nav-link" href="/feed-page">Feed Ranking</a>
-    <a class="nav-link" href="/connections-page">Connections</a>
+    <a class="nav-link " href="/connections-page">Connections</a>
     <a class="nav-link active" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
-    <a href="/logout" style="
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #666;
-  text-decoration: none;
-  border: 1px solid #E0DFDC;
-  font-family: DM Sans, sans-serif;
-">Sign out</a>
+  </div>
+
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user"></span>
+    <img class="nav-avatar" id="nav-avatar" src="" alt=""
+         onerror="this.style.display='none'">
+    <a href="/logout" class="signout">Sign out</a>
   </div>
 </nav>
 
@@ -147,8 +145,18 @@
   async function init() {
     const res = await fetch('/users');
     allUsers  = await res.json();
-    renderUserSwitcher(allUsers);
     await selectUser(1);
+
+    
+
+    const meRes = await fetch('/me');
+    if (meRes.status === 401) { window.location.href = '/login'; return; }
+    const me = await meRes.json();
+
+
+    document.getElementById('nav-user').textContent = me.name.split(' ')[0];
+    document.getElementById('nav-avatar').src       = me.avatar;
+
   }
 
   
@@ -187,6 +195,8 @@
     if (currentTab === 'similar')  await loadSimilarUsers();
     if (currentTab === 'trending') await loadTrending();
   }
+
+  
 
   // ── Recommended posts ──────────────────────────────────
   async function loadRecommendations() {
@@ -307,10 +317,11 @@
 
     // reuse feed endpoint — already sorted by score
     const res   = await fetch('/feed');
-    const posts = await res.json();
-    const top3  = posts.slice(0, 3);
-
+    const data  = await res.json();
+    const posts = data.posts;             // now it's the actual array
+    const top3  = posts.slice(0, 3);      // works fine
     container.innerHTML = '';
+
     top3.forEach((post, index) => {
       const delay = index * 70;
       const el    = document.createElement('div');

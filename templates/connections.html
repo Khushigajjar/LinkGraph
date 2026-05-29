@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Connections</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/templates/CSS/connection.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/connection.css') }}">
 </head>
 <body>
 
@@ -55,6 +55,14 @@
       <div class="stat-box">
         <div class="stat-box-num" id="stat-skill">—</div>
         <div class="stat-box-label">Skill matches</div>
+      </div>
+    </div>
+
+
+    <div class="card" id="pending-section">
+      <div class="sidebar-title">Connection Requests</div>
+      <div id="pending-container">
+        <p style="color:gray;font-size:13px">No pending requests</p>
       </div>
     </div>
 
@@ -132,19 +140,23 @@
 let currentTab = 'suggestions';
 
 async function init() {
-
   const meRes = await fetch('/me');
-    if (meRes.status === 401) { window.location.href = '/login'; return; }
-    const me = await meRes.json();
+  if (meRes.status === 401) { window.location.href = '/login'; return; }
+  const me = await meRes.json();
+
+  window.currentUserId = me.id;
   document.getElementById('nav-user').textContent = me.name.split(' ')[0];
-  document.getElementById('nav-avatar').src       = me.avatar;
+  document.getElementById('nav-avatar').src = me.avatar;
+
   const res = await fetch('/users');
   allUsers  = await res.json();
+
+  await loadPendingRequests(); 
   await loadCurrentTab();
   await loadMySkills();
-
-  
 }
+
+init();
 
 async function loadMySkills() {
   const res  = await fetch('/me');
@@ -230,7 +242,8 @@ async function loadSuggestions() {
           </span>
         </div>` : ''}
       </div>
-      <button class="connect-btn" onclick="handleConnect(this)">+ Connect</button>
+    
+      <button class="connect-btn" onclick="handleConnect(this, ${person.id})">+ Connect</button>
     `;
     container.appendChild(el);
   });
@@ -311,16 +324,57 @@ async function loadSkillMatches() {
           ${(person.shared_skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
         </div>
       </div>
-      <button class="connect-btn" onclick="handleConnect(this)">+ Connect</button>
+   
+        <button class="connect-btn" onclick="handleConnect(this, ${person.id})">+ Connect</button>
     `;
     container.appendChild(el);
   });
 }
 
-function handleConnect(btn) {
-  btn.textContent = '✓ Sent';
-  btn.classList.add('connected');
+
+
+async function handleConnect(btn, targetId) {
+    if (!targetId) {
+        console.error('targetId is missing!');
+        return;
+    }
+    if (!window.currentUserId) {
+        console.error('currentUserId is missing!');
+        return;
+    }
+
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    const res = await fetch('/connect/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from_id: window.currentUserId, to_id: targetId })
+    });
+
+    if (res.ok) {
+        btn.textContent = 'Sent';
+        btn.classList.add('connected');
+    } else {
+        btn.textContent = '+ Connect';
+        btn.disabled = false;
+    }
 }
+
+
+
+// Accept
+async function acceptRequest(fromId) {
+    await fetch('/connect/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from_id: fromId, to_id: currentUserId })
+    });
+
+    loadPendingRequests();  // refresh
+    loadSuggestions();      // BFS suggestions update automatically
+}
+
 
 function skeletonCard() {
   return `
@@ -332,7 +386,59 @@ function skeletonCard() {
         <div class="skeleton" style="width:35%"></div>
       </div>
     </div>`;
+
 }
+
+
+
+// runs on page load — shows incoming requests
+async function loadPendingRequests() {
+    const res  = await fetch(`/connect/pending/${currentUserId}`);
+    const data = await res.json();
+
+    const container = document.getElementById('pending-container');
+
+    if (data.requests.length === 0) {
+        container.innerHTML = '<p style="color:gray">No pending requests</p>';
+        return;
+    }
+
+    container.innerHTML = data.requests.map(r => `
+        <div class="user-card">
+            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}" />
+            <div>
+                <strong>${r.name}</strong>
+                <p>${r.headline}</p>
+            </div>
+            <button onclick="acceptRequest(${r.from_id})">Accept</button>
+            <button onclick="rejectRequest(${r.from_id})">Ignore</button>
+        </div>
+    `).join('');
+}
+
+async function acceptRequest(fromId) {
+    const res = await fetch('/connect/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from_id: fromId, to_id: currentUserId })
+    });
+    const data = await res.json();
+    if (data.status === 'accepted') {
+        loadPendingRequests();   // refresh requests
+        loadSuggestions();       // refresh BFS — this person gone from suggestions
+    }
+}
+
+async function rejectRequest(fromId) {
+    await fetch('/connect/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from_id: fromId, to_id: currentUserId })
+    });
+    loadPendingRequests();
+}
+
+
 
 init();
 </script>

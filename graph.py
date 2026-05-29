@@ -6,7 +6,12 @@ with open("dataset.json", "r") as f:
     raw = json.load(f)
 
 users     = { user["id"]: user for user in raw["users"] }
-adjacency = { user["id"]: user["connections"] for user in raw["users"] }
+adjacency = { user["id"]: set(user["connections"]) for user in raw["users"] }
+
+for user in raw["users"]:
+    for neighbor_id in user["connections"]:
+        if neighbor_id in adjacency:
+            adjacency[neighbor_id].add(user["id"]) 
 
 def get_all_posts():
     # start with JSON posts
@@ -48,6 +53,34 @@ def get_all_posts():
     return all_posts
 
 
+def load_mysql_users():
+    try:
+        conn   = mysql.connector.connect(
+            host="localhost", user="root", password="", database="linkgraph"
+        )
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, username, id as author_id FROM users")
+        db_users = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        for u in db_users:
+            if u["id"] not in users:
+                users[u["id"]] = {
+                    "id":       u["id"],
+                    "name":     u["username"],
+                    "headline": "LinkGraph Member",
+                    "avatar":   f"https://ui-avatars.com/api/?name={u['username']}",
+                    "company":  "",
+                    "skills":   [],
+                    "connections": []
+                }
+                adjacency[u["id"]] = set()
+    except Exception as e:
+        print(f"DB users error: {e}")
+
+
+load_mysql_users() 
 
 posts = get_all_posts()
 
@@ -65,3 +98,7 @@ def enrich_posts(post_list):
             "author_avatar":   author["avatar"]
         })
     return enriched
+
+
+
+

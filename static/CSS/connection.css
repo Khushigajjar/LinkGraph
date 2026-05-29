@@ -452,3 +452,88 @@ nav {
     color: var(--muted);
     font-size: 14px;
   }
+
+
+/* ── Connection Requests Section ──────────────────── */
+#pending-section {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+#pending-section .sidebar-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-card:last-child {
+  border-bottom: none;
+}
+
+.user-card img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-card div {
+  flex: 1;
+}
+
+.user-card strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  display: block;
+}
+
+.user-card p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 2px 0 0;
+}
+
+.user-card button {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+/* Accept button */
+.user-card button:first-of-type {
+  background: #0096A0;
+  color: white;
+  border-color: #0096A0;
+}
+
+.user-card button:first-of-type:hover {
+  background: #007a82;
+}
+
+/* Ignore button */
+.user-card button:last-of-type {
+  background: transparent;
+  color: var(--muted);
+}
+
+.user-card button:last-of-type:hover {
+  background: var(--hover);
+  color: var(--text);
+}

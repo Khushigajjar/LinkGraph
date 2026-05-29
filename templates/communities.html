@@ -5,29 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Communities</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/templates/CSS/communities.css">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/communities.css') }}">
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
-  <div class="nav-links">
+
+  <div class="nav-center">
     <a class="nav-link" href="/feed-page">Feed Ranking</a>
-    <a class="nav-link" href="/connections-page">Connections</a>
-    <a class="nav-link" href="/recommendations-page">Recommendations</a>
+    <a class="nav-link " href="/connections-page">Connections</a>
+    <a class="nav-link " href="/recommendations-page">Recommendations</a>
     <a class="nav-link active" href="/communities-page">Communities</a>
-    <a href="/logout" style="
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #666;
-  text-decoration: none;
-  border: 1px solid #E0DFDC;
-  font-family: DM Sans, sans-serif;
-">Sign out</a>
+  </div>
+
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user"></span>
+    <img class="nav-avatar" id="nav-avatar" src="" alt=""
+         onerror="this.style.display='none'">
+    <a href="/logout" class="signout">Sign out</a>
   </div>
 </nav>
 
@@ -154,6 +151,15 @@
     communityData = await res.json();
 
     const clusters = communityData.skill_clusters || [];
+
+
+    const meRes = await fetch('/me');
+    if (meRes.status === 401) { window.location.href = '/login'; return; }
+    const me = await meRes.json();
+
+
+    document.getElementById('nav-user').textContent = me.name.split(' ')[0];
+    document.getElementById('nav-avatar').src       = me.avatar;
 
     // COMMENTED OUT: connected components and hub stats
     // const components = communityData.connected_components || [];
