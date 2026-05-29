@@ -214,9 +214,9 @@
     container.innerHTML = '';
     posts.forEach((post, index) => {
       const delay  = index * 70;
-      const source = post.source === 'network' ? 'personalised' : 'trending';
+      const source = post.source === 'personalised' ? 'personalised' : 'trending';
       const badgeClass = source === 'personalised' ? 'source-personal' : 'source-trending';
-      const badgeLabel = source === 'personalised' ? 'For you' : 'Trending';
+      const badgeLabel = post.recommendation_type || (source === 'personalised' ? 'For you' : 'Trending');
 
       const el = document.createElement('div');
       el.className = 'post-card';
@@ -237,6 +237,9 @@
         </div>
 
         <p class="post-content">${post.content}</p>
+
+        ${post.recommendation_reason ? `
+        <div class="recommendation-reason">${post.recommendation_reason}</div>` : ''}
 
         <div class="post-tags">
           ${(post.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
@@ -279,10 +282,9 @@
       const delay    = index * 70;
       const barWidth = (user.similarity * 100).toFixed(0);
 
-      // find shared skills between current user and this user
       const currentUser   = allUsers.find(u => u.id === currentUserId);
       const currentSkills = new Set(currentUser ? currentUser.skills : []);
-      const sharedSkills  = (user.skills || []).filter(s => currentSkills.has(s));
+      const sharedSkills  = user.shared_skills || (user.skills || []).filter(s => currentSkills.has(s));
 
       const el = document.createElement('div');
       el.className = 'similar-card';
@@ -304,6 +306,8 @@
           <div class="shared-skills">
             ${sharedSkills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
           </div>
+          ${user.recommendation_reason ? `
+          <div class="recommendation-reason">${user.recommendation_reason}</div>` : ''}
         </div>
       `;
       container.appendChild(el);
@@ -315,11 +319,11 @@
     const container = document.getElementById('trending-container');
     container.innerHTML = skeletonPost();
 
-    // reuse feed endpoint — already sorted by score
+    // reuse feed endpoint because it is already sorted by professional score
     const res   = await fetch('/feed');
     const data  = await res.json();
-    const posts = data.posts;             // now it's the actual array
-    const top3  = posts.slice(0, 3);      // works fine
+    const top3  = (data.posts || []).slice(0, 3);
+
     container.innerHTML = '';
 
     top3.forEach((post, index) => {
@@ -343,6 +347,9 @@
         </div>
 
         <p class="post-content">${post.content}</p>
+
+        ${post.match_reason ? `
+        <div class="recommendation-reason">Trending signal: ${post.match_reason}</div>` : ''}
 
         <div class="post-tags">
           ${(post.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}

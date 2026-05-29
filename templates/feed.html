@@ -101,7 +101,7 @@
             style="flex:1;text-align:left;padding:10px 16px;border-radius:24px;border:1.5px solid var(--border);background:none;font-size:14px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.15s"
             onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'"
             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
-      Share something with your network...
+      Share an insight, role update, or opportunity...
     </button>
   </div>
 </div>
@@ -213,7 +213,9 @@
           <span class="cstat-val green">O(n log n)</span>
         </div>
 
-        
+        <div class="formula" style="margin-top:10px">
+          score = engagement + network boost + skill boost - recency penalty
+        </div>
       </div>
     </div>
 
@@ -330,6 +332,11 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
 
         
 
+        ${post.match_reason ? `
+        <div class="boosted-badge">
+          Professional signal: ${post.match_reason}
+        </div>` : ''}
+
         <p class="post-content">${post.content}</p>
 
         ${(post.tags || []).length ? `
@@ -340,7 +347,18 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
           `).join('')}
         </div>` : ''}
 
-        
+        <div class="score-row">
+          <span class="score-num">${post.score}<sub> score</sub></span>
+          <div class="eng-bar">
+            <div class="eng-fill" style="width: ${barWidth}%"></div>
+          </div>
+          ${post.score_breakdown ? `
+          <div class="score-parts">
+            <span class="sp"><span class="dot dl"></span>engagement <strong>${post.score_breakdown.engagement}</strong></span>
+            <span class="sp"><span class="dot dc"></span>network <strong>${post.score_breakdown.network_boost}</strong></span>
+            <span class="sp"><span class="dot ds"></span>skills <strong>${post.score_breakdown.skill_boost}</strong></span>
+          </div>` : ''}
+        </div>
 
         <div class="post-stats">
           <span class="si">

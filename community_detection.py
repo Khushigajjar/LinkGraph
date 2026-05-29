@@ -1,5 +1,14 @@
 from graph import users, adjacency
 
+
+def top_cluster_skills(cluster, limit=3):
+    counts = {}
+    for uid in cluster:
+        for skill in users[uid]["skills"]:
+            counts[skill] = counts.get(skill, 0) + 1
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    return [skill for skill, _ in ranked[:limit]]
+
 def find_connected_components():
     visited = set()
     components = []   
@@ -92,6 +101,7 @@ def find_skill_clusters(threshold=0.4):
 
     result = []
     for cluster in clusters:
+        focus = top_cluster_skills(cluster)
         result.append([
             {
                 "id":  uid,
@@ -141,7 +151,8 @@ def find_influence_hubs():
             "headline":users[uid]["headline"],
             "company":users[uid]["company"],
             "direct_connections":  degree,
-            "network_reach":  degree + second_degree
+            "network_reach":  degree + second_degree,
+            "hub_reason":     "High second-degree reach across the professional graph"
         })
 
     scores.sort(key=lambda x: x["network_reach"], reverse=True)

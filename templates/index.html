@@ -182,9 +182,9 @@
         <div class="skeleton"></div><div class="skeleton" style="width:80%"></div>
       </div>`;
 
-    const res   = await fetch('/feed');
-    const data  = await res.json();
-    renderPosts(data.posts);
+    const res  = await fetch('/feed');
+    const data = await res.json();
+    renderPosts(data.posts || data);
   }
  
 
@@ -211,6 +211,11 @@
             <div class="post-time">${post.timestamp}</div>
           </div>
         </div>
+
+        ${post.match_reason ? `
+        <div style="font-size:12px;color:var(--blue);background:var(--blue-light);border-radius:8px;padding:7px 10px;margin-bottom:10px">
+          Professional signal: ${post.match_reason}
+        </div>` : ''}
 
         <p class="post-content">${post.content}</p>
 
@@ -281,6 +286,10 @@
                onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0077B5&color=fff&size=128'">
           <div style="font-size:14px;font-weight:600;margin-bottom:4px">${u.name}</div>
           <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.4">${u.headline}</div>
+          ${u.recommendation_reason ? `
+          <div style="font-size:11px;color:var(--blue);background:var(--blue-light);border-radius:8px;padding:7px 8px;margin-bottom:12px;line-height:1.35">
+            ${u.recommendation_reason}
+          </div>` : ''}
           <button class="connect-btn" style="width:100%">+ Connect</button>
         </div>
       `).join('');
