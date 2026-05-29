@@ -50,7 +50,7 @@
       </div>
       <div class="stat-box">
         <div class="stat-box-num" id="stat-suggestions">—</div>
-        <div class="stat-box-label">BFS suggestions</div>
+        <div class="stat-box-label">People suggestions</div>
       </div>
       <div class="stat-box">
         <div class="stat-box-num" id="stat-skill">—</div>
@@ -60,7 +60,7 @@
 
     <!-- Tabs -->
     <div class="section-tabs">
-      <button class="section-tab active" onclick="switchTab('suggestions', this)">BFS Suggestions</button>
+      <button class="section-tab active" onclick="switchTab('suggestions', this)">People You May Know</button>
       <button class="section-tab" onclick="switchTab('network', this)">My Network</button>
       <button class="section-tab" onclick="switchTab('skills', this)">Skill Matches</button>
     </div>
@@ -117,7 +117,8 @@
         <div style="font-size:12px;color:var(--muted);line-height:1.8">
           BFS traversal: <strong style="color:var(--text)">O(V + E)</strong><br>
           Set intersection: <strong style="color:var(--text)">O(min(n,m))</strong><br>
-          Jaccard scoring: <strong style="color:var(--text)">O(n)</strong>
+          Jaccard scoring: <strong style="color:var(--text)">O(n)</strong><br>
+          Recommendation reason: mutual links + shared skills
         </div>
       </div>
     </div>
@@ -207,14 +208,22 @@ async function loadSuggestions() {
       <div class="conn-body">
         <div class="conn-name">${person.name}</div>
         <div class="conn-headline">${person.headline}</div>
+        <span class="degree-badge degree-${person.degree === 2 ? '2' : '3'}">${person.degree}${person.degree === 2 ? 'nd' : 'rd'} degree</span>
         
         <div class="jaccard-wrap">
           <div class="jaccard-label">
+            <span>Network overlap</span>
+            <strong>${(person.jaccard_score * 100).toFixed(0)}%</strong>
           </div>
           <div class="jaccard-track">
             <div class="jaccard-fill" style="width: ${barWidth}%"></div>
           </div>
         </div>
+        ${person.recommendation_reason ? `<div class="reason-line">${person.recommendation_reason}</div>` : ''}
+        ${(person.shared_skills || []).length ? `
+        <div class="shared-skills">
+          ${person.shared_skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+        </div>` : ''}
         ${mutuals.length ? `
         <div class="mutual-row">
           <div class="mutual-avatars">
@@ -301,8 +310,12 @@ async function loadSkillMatches() {
       <div class="conn-body">
         <div class="conn-name">${person.name}</div>
         <div class="conn-headline">${person.headline}</div>
+        ${person.recommendation_reason ? `<div class="reason-line">${person.recommendation_reason}</div>` : ''}
         <div class="jaccard-wrap" style="margin-top:8px">
-          
+          <div class="jaccard-label">
+            <span>Skill overlap</span>
+            <strong>${barWidth}%</strong>
+          </div>
           <div class="jaccard-track">
             <div class="jaccard-fill" style="width: ${barWidth}%"></div>
           </div>
