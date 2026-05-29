@@ -264,6 +264,8 @@
       const commonSkills = skillSets.length
         ? [...skillSets[0]].filter(s => skillSets.every(set => set.has(s)))
         : [];
+      const focusSkills = (cluster[0] && cluster[0].cluster_focus) || commonSkills;
+      const summary = (cluster[0] && cluster[0].cluster_summary) || 'Professionals grouped by shared skills';
 
       const el = document.createElement('div');
       el.className = 'component-card';
@@ -300,7 +302,7 @@
         <div class="component-header">
           <div class="component-title">
             Cluster ${idx + 1}
-            ${commonSkills.length ? `— <span style="color:var(--purple);font-weight:400">${commonSkills.slice(0,2).join(', ')}</span>` : ''}
+            ${focusSkills.length ? `- <span style="color:var(--purple);font-weight:400">${focusSkills.slice(0,2).join(', ')}</span>` : ''}
           </div>
           <span class="component-badge badge-cluster">${cluster.length} member${cluster.length !== 1 ? 's' : ''}</span>
         </div>
@@ -308,6 +310,8 @@
         <div class="avatar-stack">
           ${avatarStack}${extra}
         </div>
+
+        <div class="cluster-summary">${summary}</div>
 
         ${commonSkills.length ? `
         <div style="margin-bottom:12px;font-size:12px;color:var(--muted)">

@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request
+from flask import send_from_directory
 from feed_ranking import get_ranked_feed, StoryList
 from graph import users, adjacency, posts, enrich_posts
 from content_recommendation import get_recommendations, get_trending_posts, find_similar_users
@@ -16,6 +17,11 @@ app.secret_key = "linkgraph_secret_2026"
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/templates/CSS/<path:filename>")
+def template_css(filename):
+    return send_from_directory("templates/CSS", filename)
 
 
 @app.route("/me")
@@ -43,35 +49,11 @@ def suggested_connections(user_id):
     if user_id not in users:
         return jsonify({"error": "User not found"}), 404
 
-    # BFS setup
-    visited    = set()   
-    queue      = [user_id]  
-    direct     = set(adjacency[user_id])  
-    suggestions = [] 
-
-    visited.add(user_id)
-
-
-    for neighbor in adjacency[user_id]:
-        visited.add(neighbor)
-
-    for neighbor in adjacency[user_id]:
-        for second_degree in adjacency.get(neighbor, []):
-            if (
-                second_degree not in visited and
-                second_degree != user_id and
-                second_degree not in direct
-            ):
-                visited.add(second_degree)
-                user = users[second_degree]
-                suggestions.append({
-                    "id":       user["id"],
-                    "name":     user["name"],
-                    "headline": user["headline"],
-                    "avatar":   user["avatar"],
-                    "company":  user["company"]
-                })
-
+    suggestions = [
+        suggestion
+        for suggestion in get_all_suggestions(user_id)
+        if suggestion["source"] == "network"
+    ]
     return jsonify(suggestions)
 
 
@@ -85,7 +67,8 @@ def get_users():
             "headline": user["headline"],
             "avatar":   user["avatar"],
             "company":  user["company"],
-            "skills":   user["skills"]
+            "skills":   user["skills"],
+            "connections": len(user["connections"])
         })
     return jsonify(user_list)
 
@@ -206,7 +189,9 @@ def feed():
             "theoretical": theoretical,
             "elapsed_ms":  elapsed,
             "algorithm":   "Merge Sort",
-            "complexity":  "O(n log n)"
+            "complexity":  "O(n log n)",
+            "formula":     "engagement + network boost + shared-skill boost - recency penalty",
+            "context":     "LinkedIn-style professional feed ranking"
         }
     })
 

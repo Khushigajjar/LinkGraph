@@ -254,6 +254,16 @@ nav {
 
   .mutual-text strong { color: var(--text); }
 
+  .reason-line {
+    font-size: 12px;
+    color: var(--teal);
+    background: var(--teal-bg);
+    border-radius: 8px;
+    padding: 7px 10px;
+    margin: 8px 0;
+    line-height: 1.45;
+  }
+
   /* shared skills */
   .shared-skills {
     display: flex;
