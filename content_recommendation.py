@@ -27,8 +27,8 @@ def cosine_similarity(vec_a, vec_b):
 
 
 def find_similar_users(user_id):
-    vocab      = build_vocabulary()
-    target     = users[user_id]
+    vocab  = build_vocabulary()
+    target = users[user_id]
     target_vec = skill_vector(target, vocab)
 
     similarities = []
@@ -38,13 +38,13 @@ def find_similar_users(user_id):
             continue  
 
         other_vec  = skill_vector(user, vocab)
-        score      = cosine_similarity(target_vec, other_vec)
+        score  = cosine_similarity(target_vec, other_vec)
 
         similarities.append({
-            "user_id":    uid,
-            "name":       user["name"],
-            "avatar":     user["avatar"],
-            "headline":   user["headline"],
+            "user_id": uid,
+            "name":  user["name"],
+            "avatar":  user["avatar"],
+            "headline":user["headline"],
             "similarity": score
         })
 
@@ -84,8 +84,8 @@ def find_trending(post_list):
     if len(post_list) == 1:
         return post_list[0]
     
-    mid   = len(post_list) // 2
-    left  = find_trending(post_list[:mid])
+    mid = len(post_list) // 2
+    left = find_trending(post_list[:mid])
     right = find_trending(post_list[mid:])
 
    
@@ -97,7 +97,7 @@ def find_trending(post_list):
 def get_trending_posts(top_n=3):
    
     remaining = list(posts)
-    trending  = []
+    trending = []
 
     for _ in range(min(top_n, len(remaining))):
         winner = find_trending(remaining)
@@ -110,8 +110,7 @@ def get_recommendations(user_id):
     personalised = collaborative_filter(user_id)
     trending     = get_trending_posts()
 
-    # Merge without duplicates — track seen post ids
-    seen     = set()
+    seen = set()
     combined = []
 
     for post in personalised + trending:

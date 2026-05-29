@@ -5,7 +5,7 @@ from datetime import datetime
 with open("dataset.json", "r") as f:
     raw = json.load(f)
 
-users     = { user["id"]: user for user in raw["users"] }
+users = { user["id"]: user for user in raw["users"] }
 adjacency = { user["id"]: set(user["connections"]) for user in raw["users"] }
 
 for user in raw["users"]:
@@ -19,14 +19,13 @@ def get_all_posts():
     for post in raw["posts"]:
         p = dict(post)
         p["timestamp"] = datetime.fromisoformat(p["timestamp"])
-        p["tags"]      = p.get("tags", [])
-        p["shares"]    = p.get("shares", 0)
-        p["source"]    = "json"
+        p["tags"]= p.get("tags", [])
+        p["shares"]= p.get("shares", 0)
+        p["source"] = "json"
         all_posts.append(p)
 
-    # add MySQL posts on top
     try:
-        conn   = mysql.connector.connect(
+        conn = mysql.connector.connect(
             host="localhost", user="root", password="", database="linkgraph"
         )
         cursor = conn.cursor(dictionary=True)
@@ -37,15 +36,15 @@ def get_all_posts():
 
         for post in db_posts:
             all_posts.append({
-                "id":        post["id"] + 10000,  # avoid id clash with JSON posts
-                "author_id": post["author_id"],
-                "content":   post["content"],
-                "likes":     post["likes"],
-                "comments":  post["comments"],
-                "shares":    post["shares"],
-                "timestamp": post["timestamp"],
-                "tags":      [],
-                "source":    "db"
+                "id":post["id"] + 10000,  
+                "author_id":post["author_id"],
+                "content":post["content"],
+                "likes":post["likes"],
+                "comments":post["comments"],
+                "shares": post["shares"],
+                "timestamp":post["timestamp"],
+                "tags": [],
+                "source": "db"
             })
     except Exception as e:
         print(f"DB posts error: {e}")
@@ -55,7 +54,7 @@ def get_all_posts():
 
 def load_mysql_users():
     try:
-        conn   = mysql.connector.connect(
+        conn = mysql.connector.connect(
             host="localhost", user="root", password="", database="linkgraph"
         )
         cursor = conn.cursor(dictionary=True)
@@ -67,12 +66,12 @@ def load_mysql_users():
         for u in db_users:
             if u["id"] not in users:
                 users[u["id"]] = {
-                    "id":       u["id"],
-                    "name":     u["username"],
+                    "id": u["id"],
+                    "name": u["username"],
                     "headline": "LinkGraph Member",
-                    "avatar":   f"https://ui-avatars.com/api/?name={u['username']}",
-                    "company":  "",
-                    "skills":   [],
+                    "avatar": f"https://ui-avatars.com/api/?name={u['username']}",
+                    "company": "",
+                    "skills": [],
                     "connections": []
                 }
                 adjacency[u["id"]] = set()
@@ -93,9 +92,9 @@ def enrich_posts(post_list):
             continue
         enriched.append({
             **post,
-            "author_name":     author["name"],
-            "author_headline": author["headline"],
-            "author_avatar":   author["avatar"]
+            "author_name":author["name"],
+            "author_headline":author["headline"],
+            "author_avatar":author["avatar"]
         })
     return enriched
 

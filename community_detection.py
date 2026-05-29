@@ -1,7 +1,7 @@
 from graph import users, adjacency
 
 def find_connected_components():
-    visited    = set()
+    visited = set()
     components = []   
 
     for user_id in users:
@@ -9,7 +9,7 @@ def find_connected_components():
             continue  
 
         component = []
-        stack     = [user_id]
+        stack = [user_id]
 
         while stack:
             current = stack.pop()   
@@ -30,12 +30,12 @@ def find_connected_components():
     for component in components:
         result.append([
             {
-                "id":       uid,
-                "name":     users[uid]["name"],
-                "avatar":   users[uid]["avatar"],
+                "id": uid,
+                "name": users[uid]["name"],
+                "avatar": users[uid]["avatar"],
                 "headline": users[uid]["headline"],
-                "company":  users[uid]["company"],
-                "skills":   users[uid]["skills"]
+                "company": users[uid]["company"],
+                "skills": users[uid]["skills"]
             }
             for uid in component
         ])
@@ -73,9 +73,9 @@ def find_skill_clusters(threshold=0.4):
             continue
 
         
-        cluster   = [uid]
+        cluster = [uid]
         assigned.add(uid)
-        vec_a     = skill_vector(user, vocab)
+        vec_a = skill_vector(user, vocab)
 
         for other_id, other_user in users.items():
             if other_id in assigned:
@@ -94,12 +94,12 @@ def find_skill_clusters(threshold=0.4):
     for cluster in clusters:
         result.append([
             {
-                "id":       uid,
-                "name":     users[uid]["name"],
-                "avatar":   users[uid]["avatar"],
-                "headline": users[uid]["headline"],
-                "company":  users[uid]["company"],
-                "skills":   users[uid]["skills"],
+                "id":  uid,
+                "name": users[uid]["name"],
+                "avatar": users[uid]["avatar"],
+                "headline":users[uid]["headline"],
+                "company":users[uid]["company"],
+                "skills": users[uid]["skills"],
             }
             for uid in cluster
         ])
@@ -108,9 +108,9 @@ def find_skill_clusters(threshold=0.4):
 
 def find_influence_hubs():
     user_ids = sorted(users.keys())
-    n        = len(user_ids)
+    n = len(user_ids)
 
-    # Map user_id → matrix index
+    
     id_to_index = {uid: i for i, uid in enumerate(user_ids)}
 
     matrix = [[0] * n for _ in range(n)]
@@ -125,8 +125,8 @@ def find_influence_hubs():
    
     scores = []
     for uid in user_ids:
-        i             = id_to_index[uid]
-        degree        = sum(matrix[i])  
+        i = id_to_index[uid]
+        degree = sum(matrix[i])  
         second_degree = 0
 
         
@@ -135,11 +135,11 @@ def find_influence_hubs():
                 second_degree += sum(matrix[j])
 
         scores.append({
-            "id":             uid,
-            "name":           users[uid]["name"],
-            "avatar":         users[uid]["avatar"],
-            "headline":       users[uid]["headline"],
-            "company":        users[uid]["company"],
+            "id":  uid,
+            "name": users[uid]["name"],
+            "avatar": users[uid]["avatar"],
+            "headline":users[uid]["headline"],
+            "company":users[uid]["company"],
             "direct_connections":  degree,
             "network_reach":  degree + second_degree
         })
@@ -150,6 +150,6 @@ def find_influence_hubs():
 def get_communities():
     return {
         "connected_components": find_connected_components(),
-        "skill_clusters":       find_skill_clusters(),
-        "influence_hubs":       find_influence_hubs()
+        "skill_clusters": find_skill_clusters(),
+        "influence_hubs": find_influence_hubs()
     }

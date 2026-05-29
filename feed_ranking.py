@@ -22,7 +22,7 @@ def engagement_score(post):
 
 
 
-comparison_count = 0  # global counter
+comparison_count = 0  
 
 def merge_sort(post_list):
     if len(post_list) <= 1:
@@ -95,7 +95,7 @@ def get_ranked_feed(user_id=None, post_list=None):
     comparison_count = 0
 
     from graph import adjacency, posts as default_posts, enrich_posts
-    source_posts  = post_list if post_list is not None else default_posts
+    source_posts = post_list if post_list is not None else default_posts
     connected_ids = set(adjacency.get(user_id, [])) if user_id else set()
 
     scored_posts = []
@@ -106,8 +106,8 @@ def get_ranked_feed(user_id=None, post_list=None):
         scored_posts.append({**post, "score": round(base_score, 2)})
 
     import time
-    start        = time.time()
+    start = time.time()
     sorted_posts = merge_sort(scored_posts)
-    elapsed      = round((time.time() - start) * 1000, 2)
+    elapsed = round((time.time() - start) * 1000, 2)
 
     return enrich_posts(sorted_posts), comparison_count, elapsed
