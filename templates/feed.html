@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LinkGraph — Feed</title>
+<title>LinkGraph ??? Feed</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/CSS/feed.css">
 </head>
@@ -31,7 +31,7 @@
 
 <div class="layout">
 
-  <!-- ── LEFT: Feed ── -->
+  <!-- ?????? LEFT: Feed ?????? -->
   <div>
 
     <!-- Page header -->
@@ -79,7 +79,7 @@
   </div>
 
 
-  <!-- ── RIGHT: Sidebar ── -->
+  <!-- ?????? RIGHT: Sidebar ?????? -->
 
 
 
@@ -113,7 +113,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
       <div style="font-size:16px;font-weight:600">Create a post</div>
       <button onclick="closeComposer()"
-              style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1">✕</button>
+              style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1">???</button>
     </div>
 
     <!-- Author row -->
@@ -207,7 +207,7 @@
     document.getElementById('side-company').textContent  = me.company;
     document.getElementById('side-connections').textContent = me.connections_list
   ? me.connections_list.length
-  : '—';
+  : '???';
 document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
   `<span style="font-size:10px;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:10px;font-weight:500">${s}</span>`
 ).join('');
@@ -226,7 +226,7 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
     renderPosts(allPosts);
   }
 
-  // ── Render posts ───────────────────────────────────────
+  // ?????? Render posts ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
   function renderPosts(posts) {
     const container = document.getElementById('posts-container');
     container.innerHTML = '';
@@ -256,6 +256,9 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
           </div>
         </div>
 
+        ${post.source === 'db' ? `
+        <div class="db-post-badge">Saved in database (post #${post.db_id})</div>` : ''}
+
         <p class="post-content">${post.content}</p>
 
         ${(post.tags || []).length ? `
@@ -266,29 +269,34 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
           `).join('')}
         </div>` : ''}
 
-        <div class="post-stats">
-          <button class="action-btn" onclick="likePost(${post.id}, this)">
+        <div class="post-actions">
+          <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id}, this)">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
-            <span id="like-count-${post.id}">${post.likes}</span> likes
+            Like ? <span id="likes-count-${post.id}">${post.likes}</span>
           </button>
-          <button class="action-btn" onclick="toggleCommentBox(${post.id})">
+          <button class="action-btn" onclick="toggleCommentBox(${post.id}, this)">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-            <span id="comment-count-${post.id}">${post.comments}</span> comments
+            Comment ? <span id="comments-count-${post.id}">${post.comments}</span>
           </button>
-          <span class="si">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-            ${post.shares} shares
-          </span>
         </div>
-        <div class="comment-box" id="comment-box-${post.id}" style="display:none">
-          <div class="comment-list" id="comment-list-${post.id}">
-            ${renderDemoComments(post.demo_comments || [])}
-          </div>
-          <div class="comment-input-row">
-            <input id="comment-input-${post.id}" maxlength="180" placeholder="Add a short comment">
-            <button onclick="submitComment(${post.id}, this)">Comment</button>
+
+        <div class="comment-box" id="comment-box-${post.id}">
+          <textarea id="comment-input-${post.id}" placeholder="Write a comment..."></textarea>
+          <div class="comment-box-footer">
+            <button class="comment-cancel" onclick="toggleCommentBox(${post.id}, null, true)">Cancel</button>
+            <button class="comment-submit" onclick="submitComment(${post.id})">Post comment</button>
           </div>
         </div>
+
+        ${(post.recent_comments || []).length ? `
+        <div class="comments-list" id="comments-list-${post.id}">
+          ${(post.recent_comments || []).map(c => `
+            <div class="comment-item">
+              <strong>${escapeHtml(c.author_name)}</strong> ${escapeHtml(c.content)}
+              ${c.created_at ? `<div class="comment-meta">${c.created_at}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>` : `<div class="comments-list" id="comments-list-${post.id}" style="display:none"></div>`}
       `;
       container.appendChild(el);
     });
@@ -303,55 +311,95 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
       .replaceAll("'", '&#039;');
   }
 
-  function renderDemoComments(comments) {
-    return comments.map(comment => `
-      <div class="comment-item">
-        <strong>${escapeHtml(comment.author)}</strong>
-        <span>${escapeHtml(comment.content)}</span>
-      </div>
-    `).join('');
+  function syncPostCounts(postId, likes, comments, liked) {
+    const p = allPosts.find(x => x.id === postId);
+    if (p) {
+      if (likes !== undefined) p.likes = likes;
+      if (comments !== undefined) p.comments = comments;
+      if (liked !== undefined) p.liked = liked;
+    }
+    const likesEl = document.getElementById(`likes-count-${postId}`);
+    const commentsEl = document.getElementById(`comments-count-${postId}`);
+    if (likesEl && likes !== undefined) likesEl.textContent = likes;
+    if (commentsEl && comments !== undefined) commentsEl.textContent = comments;
   }
 
-  async function likePost(postId, btn) {
+  async function toggleLike(postId, btn) {
     btn.disabled = true;
-    const res = await fetch(`/post/${postId}/like`, { method: 'POST' });
+    const res = await fetch(`/post/${postId}/like`, {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
     const data = await res.json();
-    if (data.success) {
-      document.getElementById(`like-count-${postId}`).textContent = data.likes;
-      btn.classList.add('liked');
-    }
     btn.disabled = false;
-  }
 
-  function toggleCommentBox(postId) {
-    const box = document.getElementById(`comment-box-${postId}`);
-    box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    if (box.style.display === 'block') {
-      document.getElementById(`comment-input-${postId}`).focus();
+    if (!res.ok) {
+      alert(data.error || 'Could not update like.');
+      return;
     }
+
+    syncPostCounts(postId, data.likes, undefined, data.liked);
+    btn.classList.toggle('liked', data.liked);
+    await loadFeed();
   }
 
-  async function submitComment(postId, btn) {
+  function toggleCommentBox(postId, btn, forceClose = false) {
+    const box = document.getElementById(`comment-box-${postId}`);
+    const isOpen = box.classList.contains('open');
+
+    document.querySelectorAll('.comment-box.open').forEach(el => {
+      if (el.id !== `comment-box-${postId}`) el.classList.remove('open');
+    });
+    document.querySelectorAll('.action-btn.active').forEach(el => {
+      if (!btn || el !== btn) el.classList.remove('active');
+    });
+
+    if (forceClose || isOpen) {
+      box.classList.remove('open');
+      if (btn) btn.classList.remove('active');
+      return;
+    }
+
+    box.classList.add('open');
+    if (btn) btn.classList.add('active');
+    document.getElementById(`comment-input-${postId}`).focus();
+  }
+
+  async function submitComment(postId) {
     const input = document.getElementById(`comment-input-${postId}`);
+    const btn = document.querySelector(`#comment-box-${postId} .comment-submit`);
     const content = input.value.trim();
-    if (!content) return;
+    if (!content) {
+      input.focus();
+      return;
+    }
 
     btn.disabled = true;
+    btn.textContent = 'Posting...';
+
     const res = await fetch(`/post/${postId}/comment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify({ content })
     });
     const data = await res.json();
-    if (data.success) {
-      document.getElementById(`comment-count-${postId}`).textContent = data.comments;
-      document.getElementById(`comment-list-${postId}`).innerHTML = renderDemoComments(data.demo_comments || []);
-      input.value = '';
-    }
+
     btn.disabled = false;
+    btn.textContent = 'Post comment';
+
+    if (!res.ok) {
+      alert(data.error || 'Could not post comment.');
+      return;
+    }
+
+    syncPostCounts(postId, undefined, data.comments);
+    input.value = '';
+    toggleCommentBox(postId, null, true);
+    await loadFeed();
   }
 
-  // ── Tag filter ─────────────────────────────────────────
+  // ?????? Tag filter ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
   function filterByTag(tag) {
     if (activeFilter === tag) {
       clearFilter();
@@ -372,7 +420,7 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
     renderPosts(allPosts);
   }
 
-  // ── Skeleton ───────────────────────────────────────────
+  // ?????? Skeleton ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
   function skeletonPost() {
     return `
       <div class="post-card" style="opacity:1">

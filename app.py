@@ -1,36 +1,22 @@
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for
 from flask import send_from_directory
 from feed_ranking import get_ranked_feed, StoryList
-from graph import users, adjacency, posts, enrich_posts, add_session_post
+from graph import (
+    users, adjacency, posts, enrich_posts, add_session_post,
+    update_post_engagement, add_post_comment, toggle_post_like,
+    user_liked_post, DB_POST_OFFSET,
+)
 from content_recommendation import get_recommendations, get_trending_posts, find_similar_users
-from datetime import datetime
 from community_detection import get_communities, find_influence_hubs, find_skill_clusters
 from connection_finding import get_all_suggestions, get_mutual_friends, jaccard_similarity
 from db import verify_login, get_current_user_id, get_connection
 from graph import users as graph_users
+from complexity_log import log_complexity, ALGORITHMS
+import math
 
 app = Flask(__name__)
 app.secret_key = "linkgraph_secret_2026"
 
-demo_likes = {}
-demo_comments = {}
-
-
-def apply_demo_interactions(post):
-    post_id = post["id"]
-    post["likes"] = post.get("likes", 0) + demo_likes.get(post_id, 0)
-    post["comments"] = post.get("comments", 0) + len(demo_comments.get(post_id, []))
-    post["demo_comments"] = demo_comments.get(post_id, [])
-    return post
-
-
-def find_post(post_id):
-    from graph import get_all_posts
-
-    for post in get_all_posts():
-        if post["id"] == post_id:
-            return post
-    return None
 
 @app.route("/")
 def home():
@@ -55,12 +41,16 @@ def me():
         "skills":           user["skills"],
         "connections_list": user["connections"]
     })
+
+
 @app.route("/feed-page")
 def feed_page():
     redir = require_login()
-    if redir: return redir
+    if redir:
+        return redir
     user = graph_users.get(session["user_id"])
     return render_template("feed.html", current_user=user)
+
 
 @app.route("/connections/<int:user_id>")
 def suggested_connections(user_id):
@@ -72,6 +62,7 @@ def suggested_connections(user_id):
         for suggestion in get_all_suggestions(user_id)
         if suggestion["source"] == "network"
     ]
+    log_complexity("bfs_connections", user_id=user_id, suggestions=len(suggestions))
     return jsonify(suggestions)
 
 
@@ -107,19 +98,18 @@ def get_user(user_id):
         "connections": len(user["connections"])
     })
 
+
 @app.route("/stories")
 def stories():
-    # Build the doubly linked list from all posts
     story_list = StoryList()
     enriched   = enrich_posts(posts)
 
     for post in enriched:
         story_list.add_story(post)
 
-    
-    index = request.args.get("index", 0, type=int)
+    log_complexity("doubly_linked_list", n=len(enriched), index=request.args.get("index", 0, type=int))
 
-    # Navigate to the requested position
+    index = request.args.get("index", 0, type=int)
     story_list.current = story_list.head
     for _ in range(index):
         if story_list.current.next:
@@ -129,7 +119,6 @@ def stories():
     if not current:
         return jsonify({"error": "No stories"}), 404
 
-    
     has_next = story_list.current.next is not None
     has_prev = story_list.current.prev is not None
 
@@ -143,48 +132,70 @@ def stories():
         }
     })
 
+
 @app.route("/recommendations")
 def recommendations():
     user_id = session.get("user_id", 1)
-    return jsonify(get_recommendations(user_id))
+    result = get_recommendations(user_id)
+    log_complexity("collaborative_filter", user_id=user_id, results=len(result))
+    log_complexity("divide_conquer_trending")
+    return jsonify(result)
 
 
 @app.route("/similar")
 def similar_users_route():
     user_id = session.get("user_id", 1)
-    return jsonify(find_similar_users(user_id))
+    result = find_similar_users(user_id)
+    log_complexity("cosine_similarity", user_id=user_id, similar_users=len(result))
+    return jsonify(result)
 
 
 @app.route("/communities")
 def communities():
-    return jsonify(get_communities())
+    result = get_communities()
+    log_complexity("dfs_components", components=len(result["connected_components"]))
+    log_complexity("skill_clusters", clusters=len(result["skill_clusters"]))
+    log_complexity("influence_hubs", hubs=len(result["influence_hubs"]))
+    return jsonify(result)
+
 
 @app.route("/hubs")
 def hubs():
-    return jsonify(find_influence_hubs())
+    result = find_influence_hubs()
+    log_complexity("influence_hubs", hubs=len(result))
+    return jsonify(result)
+
 
 @app.route("/clusters")
 def clusters():
-    return jsonify(find_skill_clusters())
+    result = find_skill_clusters()
+    log_complexity("skill_clusters", clusters=len(result))
+    return jsonify(result)
+
 
 @app.route("/suggestions")
 def all_suggestions():
     user_id = session.get("user_id", 1)
-    return jsonify(get_all_suggestions(user_id))
+    result = get_all_suggestions(user_id)
+    network = sum(1 for s in result if s.get("source") == "network")
+    skills = sum(1 for s in result if s.get("source") == "skills")
+    log_complexity("bfs_connections", user_id=user_id, suggestions=network)
+    log_complexity("skill_suggestions", suggestions=skills)
+    return jsonify(result)
+
 
 @app.route("/mutual/<int:user_id_a>/<int:user_id_b>")
 def mutual(user_id_a, user_id_b):
-    return jsonify(get_mutual_friends(user_id_a, user_id_b))
+    result = get_mutual_friends(user_id_a, user_id_b)
+    log_complexity("mutual_friends", mutual=len(result))
+    return jsonify(result)
 
-
-import math
 
 @app.route("/feed")
 def feed():
     user_id = session.get("user_id", 1)
 
-    # reload posts fresh each time (includes new DB posts)
-    from graph import get_all_posts, enrich_posts as enrich
+    from graph import get_all_posts
     fresh_posts = get_all_posts()
 
     ranked, comparisons, elapsed = get_ranked_feed(
@@ -196,9 +207,16 @@ def feed():
     theoretical = round(n * math.log2(n), 1) if n > 1 else 0
 
     for post in ranked:
-        apply_demo_interactions(post)
         if hasattr(post["timestamp"], "strftime"):
             post["timestamp"] = post["timestamp"].strftime("%B %d, %Y")
+        post["liked"] = user_liked_post(post["id"], session.get("user_id"))
+
+    log_complexity(
+        "merge_sort_feed",
+        n=n,
+        comparisons=comparisons,
+        elapsed_ms=elapsed,
+    )
 
     return jsonify({
         "posts": ranked,
@@ -244,64 +262,75 @@ def create_post():
         cursor.close()
         conn.close()
 
-    return jsonify({"success": True, "id": new_id})
+    return jsonify({"success": True, "id": new_id + DB_POST_OFFSET, "db_id": new_id})
 
 
 @app.route("/post/<int:post_id>/like", methods=["POST"])
 def like_post(post_id):
-    post = find_post(post_id)
-    if not post:
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    updated = toggle_post_like(post_id, user_id)
+    if not updated:
         return jsonify({"error": "Post not found"}), 404
 
-    demo_likes[post_id] = demo_likes.get(post_id, 0) + 1
     return jsonify({
-        "success": True,
-        "likes": post.get("likes", 0) + demo_likes[post_id]
+        "likes": updated["likes"],
+        "liked": updated["liked"],
+        "db_id": updated.get("db_id"),
+        "source": updated.get("source"),
     })
 
 
 @app.route("/post/<int:post_id>/comment", methods=["POST"])
 def comment_post(post_id):
-    post = find_post(post_id)
-    if not post:
-        return jsonify({"error": "Post not found"}), 404
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
 
-    content = request.json.get("content", "").strip()
+    content = (request.json or {}).get("content", "").strip()
     if not content:
         return jsonify({"error": "Comment required"}), 400
-    if len(content) > 180:
-        return jsonify({"error": "Comment is too long"}), 400
+    if len(content) > 500:
+        return jsonify({"error": "Comment too long"}), 400
 
-    comments = demo_comments.setdefault(post_id, [])
-    comments.append({
-        "author": users.get(session.get("user_id", 1), users[1])["name"],
-        "content": content
-    })
+    result = add_post_comment(post_id, user_id, content)
+    if not result:
+        return jsonify({"error": "Post not found"}), 404
 
     return jsonify({
+        "comments": result["comments"],
+        "comment": result["comment"],
         "success": True,
-        "comments": len(comments) + post.get("comments", 0),
-        "demo_comments": comments
+        "db_id": post_id - DB_POST_OFFSET if post_id >= DB_POST_OFFSET else None,
+        "source": "db" if post_id >= DB_POST_OFFSET else "json",
     })
 
 
 @app.route("/recommendations-page")
 def recommendations_page():
     redir = require_login()
-    if redir: return redir
+    if redir:
+        return redir
     return render_template("recommendations.html")
+
 
 @app.route("/connections-page")
 def connections_page():
     redir = require_login()
-    if redir: return redir
+    if redir:
+        return redir
     return render_template("connections.html")
+
 
 @app.route("/communities-page")
 def communities_page():
     redir = require_login()
-    if redir: return redir
+    if redir:
+        return redir
     return render_template("communities.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -324,6 +353,7 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
 
 def require_login():
     if "user_id" not in session:
@@ -356,29 +386,28 @@ def accept_request():
     if (from_id, to_id) not in pending:
         return jsonify({"status": "no_request"})
 
-    # remove from pending
     pending.discard((from_id, to_id))
 
-    # ADD EDGE IN BOTH DIRECTIONS — graph grows in real time
-    adjacency[from_id].add(to_id)
-    adjacency[to_id].add(from_id)
+    if to_id not in adjacency[from_id]:
+        adjacency[from_id].append(to_id)
+    if from_id not in adjacency[to_id]:
+        adjacency[to_id].append(from_id)
 
-    # update users dict too
-    users[from_id]['connections'].append(to_id)
-    users[to_id]['connections'].append(from_id)
+    if to_id not in users[from_id]['connections']:
+        users[from_id]['connections'].append(to_id)
+    if from_id not in users[to_id]['connections']:
+        users[to_id]['connections'].append(from_id)
 
     return jsonify({"status": "accepted"})
 
 
 @app.route('/connect/pending/<int:user_id>')
 def get_pending(user_id):
-    # requests sent TO this user
     incoming = [
         {"from_id": f, "name": users[f]['name'], "headline": users[f]['headline']}
         for (f, t) in pending if t == user_id
     ]
     return jsonify({"requests": incoming})
-
 
 
 @app.route('/connect/reject', methods=['POST'])
@@ -390,5 +419,16 @@ def reject_request():
     return jsonify({"status": "rejected"})
 
 
+def _print_startup_complexity():
+    print("\n" + "=" * 52, flush=True)
+    print("  LinkGraph - Algorithm Complexity (terminal log)", flush=True)
+    print("=" * 52, flush=True)
+    for info in ALGORITHMS.values():
+        print(f"  * {info['name']}", flush=True)
+        print(f"      Time:  {info['time']}   Space: {info['space']}", flush=True)
+    print("=" * 52 + "\n", flush=True)
+
+
 if __name__ == "__main__":
+    _print_startup_complexity()
     app.run(debug=True, use_reloader=False, port=5001)
