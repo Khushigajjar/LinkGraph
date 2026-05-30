@@ -293,6 +293,80 @@
   .si { display: flex; align-items: center; gap: 4px; }
   .si svg { width: 13px; height: 13px; }
 
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 0;
+  }
+
+  .action-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .action-btn:hover,
+  .action-btn.liked {
+    color: var(--blue);
+  }
+
+  .comment-box {
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .comment-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .comment-item strong {
+    margin-right: 5px;
+  }
+
+  .comment-input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .comment-input-row input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+  }
+
+  .comment-input-row button {
+    border: none;
+    border-radius: 16px;
+    padding: 8px 14px;
+    background: var(--blue);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
   /* ── SIDEBAR ── */
   .sidebar-card {
     background: var(--white);

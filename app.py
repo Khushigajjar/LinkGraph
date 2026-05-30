@@ -1,18 +1,36 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for
 from flask import send_from_directory
 from feed_ranking import get_ranked_feed, StoryList
-from graph import users, adjacency, posts, enrich_posts
+from graph import users, adjacency, posts, enrich_posts, add_session_post
 from content_recommendation import get_recommendations, get_trending_posts, find_similar_users
 from datetime import datetime
 from community_detection import get_communities, find_influence_hubs, find_skill_clusters
 from connection_finding import get_all_suggestions, get_mutual_friends, jaccard_similarity
-from flask import Flask, jsonify, render_template, request, session, redirect, url_for
-from db import verify_login, get_current_user_id
+from db import verify_login, get_current_user_id, get_connection
 from graph import users as graph_users
-import mysql.connector
 
 app = Flask(__name__)
 app.secret_key = "linkgraph_secret_2026"
+
+demo_likes = {}
+demo_comments = {}
+
+
+def apply_demo_interactions(post):
+    post_id = post["id"]
+    post["likes"] = post.get("likes", 0) + demo_likes.get(post_id, 0)
+    post["comments"] = post.get("comments", 0) + len(demo_comments.get(post_id, []))
+    post["demo_comments"] = demo_comments.get(post_id, [])
+    return post
+
+
+def find_post(post_id):
+    from graph import get_all_posts
+
+    for post in get_all_posts():
+        if post["id"] == post_id:
+            return post
+    return None
 
 @app.route("/")
 def home():
@@ -178,6 +196,7 @@ def feed():
     theoretical = round(n * math.log2(n), 1) if n > 1 else 0
 
     for post in ranked:
+        apply_demo_interactions(post)
         if hasattr(post["timestamp"], "strftime"):
             post["timestamp"] = post["timestamp"].strftime("%B %d, %Y")
 
@@ -208,20 +227,62 @@ def create_post():
     if len(content) > 1000:
         return jsonify({"error": "Too long"}), 400
 
-    conn   = mysql.connector.connect(
-        host="localhost", user="root", password="", database="linkgraph"
-    )
+    conn = get_connection()
+    if conn is None:
+        post = add_session_post(user_id, content)
+        return jsonify({"success": True, "id": post["id"], "source": "session"})
+
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO posts (author_id, content) VALUES (%s, %s)",
-        (user_id, content)
-    )
-    conn.commit()
-    new_id = cursor.lastrowid
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute(
+            "INSERT INTO posts (author_id, content) VALUES (%s, %s)",
+            (user_id, content)
+        )
+        conn.commit()
+        new_id = cursor.lastrowid
+    finally:
+        cursor.close()
+        conn.close()
 
     return jsonify({"success": True, "id": new_id})
+
+
+@app.route("/post/<int:post_id>/like", methods=["POST"])
+def like_post(post_id):
+    post = find_post(post_id)
+    if not post:
+        return jsonify({"error": "Post not found"}), 404
+
+    demo_likes[post_id] = demo_likes.get(post_id, 0) + 1
+    return jsonify({
+        "success": True,
+        "likes": post.get("likes", 0) + demo_likes[post_id]
+    })
+
+
+@app.route("/post/<int:post_id>/comment", methods=["POST"])
+def comment_post(post_id):
+    post = find_post(post_id)
+    if not post:
+        return jsonify({"error": "Post not found"}), 404
+
+    content = request.json.get("content", "").strip()
+    if not content:
+        return jsonify({"error": "Comment required"}), 400
+    if len(content) > 180:
+        return jsonify({"error": "Comment is too long"}), 400
+
+    comments = demo_comments.setdefault(post_id, [])
+    comments.append({
+        "author": users.get(session.get("user_id", 1), users[1])["name"],
+        "content": content
+    })
+
+    return jsonify({
+        "success": True,
+        "comments": len(comments) + post.get("comments", 0),
+        "demo_comments": comments
+    })
 
 
 @app.route("/recommendations-page")
@@ -271,4 +332,4 @@ def require_login():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False, port=5001)

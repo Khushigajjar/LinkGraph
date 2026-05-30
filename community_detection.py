@@ -72,36 +72,31 @@ def cosine_similarity(vec_a, vec_b):
     return round(dot_product / (mag_a * mag_b), 4)
 
 
+COMMUNITY_DEFINITIONS = [
+    ("AI Strategy Community", ["AI Strategy", "Machine Learning", "Recommendation Systems"]),
+    ("Data Analytics Community", ["Data Analytics", "People Analytics", "Data Science", "Business Analytics"]),
+    ("Product Management Community", ["Product Management", "Product Strategy", "Stakeholder Management"]),
+    ("Backend Engineering Community", ["Python", "Flask", "Graph Algorithms", "API Design"]),
+    ("Design and UX Community", ["Product Design", "UX Research", "Design Systems", "User Interviews"]),
+    ("Professional Growth Community", ["Employer Branding", "Community Building", "Networking", "Learning Programs"])
+]
+
+
 def find_skill_clusters(threshold=0.4):
-    vocab    = build_vocabulary()
-    assigned = set()    
     clusters = []
 
-    for uid, user in users.items():
-        if uid in assigned:
-            continue
+    for community_name, focus_skills in COMMUNITY_DEFINITIONS:
+        focus = set(focus_skills)
+        cluster = [
+            uid for uid, user in users.items()
+            if focus & set(user["skills"])
+        ]
 
-        
-        cluster   = [uid]
-        assigned.add(uid)
-        vec_a     = skill_vector(user, vocab)
-
-        for other_id, other_user in users.items():
-            if other_id in assigned:
-                continue
-
-            vec_b = skill_vector(other_user, vocab)
-            score = cosine_similarity(vec_a, vec_b)
-
-            if score >= threshold:
-                cluster.append(other_id)
-                assigned.add(other_id)
-
-        clusters.append(cluster)
+        if len(cluster) >= 2:
+            clusters.append((community_name, focus_skills, cluster))
 
     result = []
-    for cluster in clusters:
-        focus = top_cluster_skills(cluster)
+    for community_name, focus, cluster in clusters:
         result.append([
             {
                 "id":       uid,
@@ -111,7 +106,8 @@ def find_skill_clusters(threshold=0.4):
                 "company":  users[uid]["company"],
                 "skills":   users[uid]["skills"],
                 "cluster_focus": focus,
-                "cluster_summary": "Professionals grouped by " + ", ".join(focus)
+                "community_name": community_name,
+                "cluster_summary": "Members share " + ", ".join(focus[:3])
             }
             for uid in cluster
         ])
