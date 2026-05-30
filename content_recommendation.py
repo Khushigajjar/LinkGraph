@@ -106,7 +106,6 @@ def find_trending(post_list):
         return None
     if len(post_list) == 1:
         return post_list[0]
-
     mid = len(post_list) // 2
     left = find_trending(post_list[:mid])
     right = find_trending(post_list[mid:])

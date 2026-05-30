@@ -82,7 +82,7 @@ def generate_posts(users):
 
 random.seed(42)
 users = generate_users(50)
-users = apply_followback(users, followback_rate=0.5)  # ~2-3 followbacks per 5 follows
+users = apply_followback(users, followback_rate=0.5)  
 posts = generate_posts(users)
 
 dataset = {"users": users, "posts": posts}

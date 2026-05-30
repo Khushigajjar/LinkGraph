@@ -331,5 +331,64 @@ def require_login():
     return None
 
 
+pending = set()
+
+
+@app.route('/connect/send', methods=['POST'])
+def send_request():
+    data    = request.json
+    from_id = data['from_id']
+    to_id   = data['to_id']
+
+    if (from_id, to_id) in pending:
+        return jsonify({"status": "already_sent"})
+
+    pending.add((from_id, to_id))
+    return jsonify({"status": "sent"})
+
+
+@app.route('/connect/accept', methods=['POST'])
+def accept_request():
+    data    = request.json
+    from_id = data['from_id']
+    to_id   = data['to_id']
+
+    if (from_id, to_id) not in pending:
+        return jsonify({"status": "no_request"})
+
+    # remove from pending
+    pending.discard((from_id, to_id))
+
+    # ADD EDGE IN BOTH DIRECTIONS — graph grows in real time
+    adjacency[from_id].add(to_id)
+    adjacency[to_id].add(from_id)
+
+    # update users dict too
+    users[from_id]['connections'].append(to_id)
+    users[to_id]['connections'].append(from_id)
+
+    return jsonify({"status": "accepted"})
+
+
+@app.route('/connect/pending/<int:user_id>')
+def get_pending(user_id):
+    # requests sent TO this user
+    incoming = [
+        {"from_id": f, "name": users[f]['name'], "headline": users[f]['headline']}
+        for (f, t) in pending if t == user_id
+    ]
+    return jsonify({"requests": incoming})
+
+
+
+@app.route('/connect/reject', methods=['POST'])
+def reject_request():
+    data    = request.json
+    from_id = data['from_id']
+    to_id   = data['to_id']
+    pending.discard((from_id, to_id))
+    return jsonify({"status": "rejected"})
+
+
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, port=5001)

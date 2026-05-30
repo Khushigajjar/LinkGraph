@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Feed</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/templates/CSS/feed.css">
+<link rel="stylesheet" href="/static/CSS/feed.css">
 </head>
 <body>
 
@@ -194,17 +194,18 @@
     const meRes = await fetch('/me');
     if (meRes.status === 401) { window.location.href = '/login'; return; }
     const me = await meRes.json();
+
     document.getElementById('nav-user').textContent = me.name.split(' ')[0];
     document.getElementById('nav-avatar').src       = me.avatar;
     myConnections = me.connections_list || [];
-document.getElementById('composer-avatar').src = me.avatar;
-document.getElementById('modal-avatar').src     = me.avatar;
-document.getElementById('modal-name').textContent = me.name;
+    document.getElementById('composer-avatar').src = me.avatar;
+    document.getElementById('modal-avatar').src     = me.avatar;
+    document.getElementById('modal-name').textContent = me.name;
     document.getElementById('side-avatar').src        = me.avatar;
-document.getElementById('side-name').textContent  = me.name;
-document.getElementById('side-headline').textContent = me.headline;
-document.getElementById('side-company').textContent  = me.company;
-document.getElementById('side-connections').textContent = me.connections_list
+    document.getElementById('side-name').textContent  = me.name;
+    document.getElementById('side-headline').textContent = me.headline;
+    document.getElementById('side-company').textContent  = me.company;
+    document.getElementById('side-connections').textContent = me.connections_list
   ? me.connections_list.length
   : '—';
 document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>

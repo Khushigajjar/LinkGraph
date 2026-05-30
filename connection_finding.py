@@ -13,8 +13,8 @@ def get_mutual_friends(user_id_a, user_id_b):
         {
             "id": uid,
             "name": users[uid]["name"],
-            "avatar": users[uid]["avatar"],
-            "headline": users[uid]["headline"]
+            "avatar":users[uid]["avatar"],
+            "headline":users[uid]["headline"]
         }
         for uid in mutual_ids
     ]
@@ -67,7 +67,7 @@ def bfs_suggestions(user_id):
     suggestions = []
 
     while queue:
-        current, depth = queue.pop(0)
+        current, depth = queue.pop(0)   
 
         for neighbor in adjacency.get(current, []):
             if neighbor in visited:
