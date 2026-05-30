@@ -25,7 +25,7 @@ def home():
 
 @app.route("/templates/CSS/<path:filename>")
 def template_css(filename):
-    return send_from_directory("templates/CSS", filename)
+    return send_from_directory("static/CSS", filename)
 
 
 @app.route("/me")
