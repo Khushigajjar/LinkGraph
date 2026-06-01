@@ -14,7 +14,7 @@
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
 
   <div class="nav-center">
-    <a class="nav-link" href="/feed-page">Feed Ranking</a>
+    <a class="nav-link" href="/feed-page">Feed</a>
     <a class="nav-link active" href="/connections-page">Connections</a>
     <a class="nav-link" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
@@ -37,7 +37,7 @@
     <!-- Page header -->
     <div class="page-header">
       <div>
-        <div class="page-title">Connection Finding</div>
+        <div class="page-title">People You May Know</div>
       </div>
       
     </div>
@@ -117,20 +117,6 @@
   </div>
 </div>
 
-    <!-- Algorithm explainer -->
-    <div class="card">
-      
-      <div class="sidebar-section">
-        <div class="sidebar-title">Complexity</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.8">
-          BFS traversal: <strong style="color:var(--text)">O(V + E)</strong><br>
-          Set intersection: <strong style="color:var(--text)">O(min(n,m))</strong><br>
-          Jaccard scoring: <strong style="color:var(--text)">O(n)</strong><br>
-          Recommendation reason: mutual links + shared skills
-        </div>
-      </div>
-    </div>
-
   </aside>
 
 </div>
@@ -206,8 +192,8 @@ async function loadSuggestions() {
   container.innerHTML = '';
   bfs.forEach((person, index) => {
     const delay    = index * 70;
-    const barWidth = (person.jaccard_score * 100).toFixed(0);
     const mutuals  = person.mutual_friends || [];
+    const sharedSkills = person.shared_skills || [];
 
     const el = document.createElement('div');
     el.className = 'conn-card';
@@ -221,21 +207,8 @@ async function loadSuggestions() {
         <div class="conn-name">${person.name}</div>
         <div class="conn-headline">${person.headline}</div>
         <span class="degree-badge degree-${person.degree === 2 ? '2' : '3'}">${person.degree}${person.degree === 2 ? 'nd' : 'rd'} degree</span>
-        
-        <div class="jaccard-wrap">
-          <div class="jaccard-label">
-            <span>Network overlap</span>
-            <strong>${(person.jaccard_score * 100).toFixed(0)}%</strong>
-          </div>
-          <div class="jaccard-track">
-            <div class="jaccard-fill" style="width: ${barWidth}%"></div>
-          </div>
-        </div>
-        ${person.recommendation_reason ? `<div class="reason-line">${person.recommendation_reason}</div>` : ''}
-        ${(person.shared_skills || []).length ? `
-        <div class="shared-skills">
-          ${person.shared_skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
-        </div>` : ''}
+        ${mutuals.length ? `<div class="reason-line">Shared connections: ${mutuals.slice(0, 3).map(m => m.name).join(', ')}</div>` : ''}
+        ${sharedSkills.length ? `<div class="reason-line">Shared skills: ${sharedSkills.slice(0, 4).join(', ')}</div>` : ''}
         ${mutuals.length ? `
         <div class="mutual-row">
           <div class="mutual-avatars">
@@ -311,7 +284,6 @@ async function loadSkillMatches() {
 
   container.innerHTML = '';
   skillBased.forEach((person, index) => {
-    const barWidth = ((person.skill_overlap || 0) * 100).toFixed(0);
     const el = document.createElement('div');
     el.className = 'conn-card';
     el.style.animationDelay = `${index * 70}ms`;
@@ -324,15 +296,6 @@ async function loadSkillMatches() {
         <div class="conn-name">${person.name}</div>
         <div class="conn-headline">${person.headline}</div>
         ${person.recommendation_reason ? `<div class="reason-line">${person.recommendation_reason}</div>` : ''}
-        <div class="jaccard-wrap" style="margin-top:8px">
-          <div class="jaccard-label">
-            <span>Skill overlap</span>
-            <strong>${barWidth}%</strong>
-          </div>
-          <div class="jaccard-track">
-            <div class="jaccard-fill" style="width: ${barWidth}%"></div>
-          </div>
-        </div>
         <div class="shared-skills">
           ${(person.shared_skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
         </div>

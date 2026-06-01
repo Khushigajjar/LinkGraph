@@ -6,6 +6,7 @@
 <title>LinkGraph — Communities</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='CSS/communities.css') }}">
+
 </head>
 <body>
 
@@ -15,8 +16,8 @@
 
   <div class="nav-center">
     <a class="nav-link" href="/feed-page">Feed Ranking</a>
-    <a class="nav-link " href="/connections-page">Connections</a>
-    <a class="nav-link " href="/recommendations-page">Recommendations</a>
+    <a class="nav-link" href="/connections-page">Connections</a>
+    <a class="nav-link" href="/recommendations-page">Recommendations</a>
     <a class="nav-link active" href="/communities-page">Communities</a>
   </div>
 
@@ -37,7 +38,8 @@
     <!-- Page header -->
     <div class="page-header">
       <div>
-        <div class="page-title">Community Detection</div>
+        <div class="page-title">Professional Communities</div>
+        <div class="page-subtitle">Groups formed around shared professional skills</div>
       </div>
     </div>
 
@@ -119,27 +121,6 @@
 
   </div>
 
-
-  <!-- RIGHT: Sidebar -->
-  <aside>
-
-    <div class="card">
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Complexity</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9">
-          <!-- COMMENTED OUT: DFS and hub detection complexity no longer relevant -->
-          <!-- DFS traversal: <strong style="color:var(--text)">O(V + E)</strong><br> -->
-          Skill clustering: <strong style="color:var(--text)">O(n²)</strong><br>
-          Adjacency matrix: <strong style="color:var(--text)">O(n²) space</strong><br>
-          <!-- Hub detection: <strong style="color:var(--text)">O(n²)</strong><br> -->
-        </div>
-      </div>
-
-    </div>
-
-  </aside>
-
 </div>
 
 
@@ -150,16 +131,7 @@
     const res     = await fetch('/communities');
     communityData = await res.json();
 
-    const clusters = communityData.skill_clusters || [];
-
-
-    const meRes = await fetch('/me');
-    if (meRes.status === 401) { window.location.href = '/login'; return; }
-    const me = await meRes.json();
-
-
-    document.getElementById('nav-user').textContent = me.name.split(' ')[0];
-    document.getElementById('nav-avatar').src       = me.avatar;
+    const clusters = (communityData.skill_clusters || []).filter(cluster => cluster.length >= 2);
 
     // COMMENTED OUT: connected components and hub stats
     // const components = communityData.connected_components || [];
@@ -169,6 +141,14 @@
 
     // Update skill clusters stat only
     // document.getElementById('stat-clusters').textContent = clusters.length;
+
+    const meRes = await fetch('/me');
+    if (meRes.status === 401) { window.location.href = '/login'; return; }
+    const me = await meRes.json();
+    const navUser = document.getElementById('nav-user');
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navUser) navUser.textContent = me.name.split(' ')[0];
+    if (navAvatar) navAvatar.src = me.avatar;
 
     renderClusters(clusters);
   }
@@ -259,11 +239,11 @@
     container.innerHTML = '';
 
     if (!clusters.length) {
-      container.innerHTML = '<div class="empty-state">No clusters found.</div>';
+      container.innerHTML = '<div class="empty-state">No communities found yet.</div>';
       return;
     }
 
-    clusters.forEach((cluster, idx) => {
+    clusters.filter(cluster => cluster.length >= 2).forEach((cluster, idx) => {
       const delay = idx * 80;
 
       const skillSets    = cluster.map(u => new Set(u.skills || []));
@@ -271,6 +251,7 @@
         ? [...skillSets[0]].filter(s => skillSets.every(set => set.has(s)))
         : [];
       const focusSkills = (cluster[0] && cluster[0].cluster_focus) || commonSkills;
+      const communityName = (cluster[0] && cluster[0].community_name) || `${focusSkills[0] || 'Professional'} Community`;
       const summary = (cluster[0] && cluster[0].cluster_summary) || 'Professionals grouped by shared skills';
 
       const el = document.createElement('div');
@@ -307,8 +288,7 @@
       el.innerHTML = `
         <div class="component-header">
           <div class="component-title">
-            Cluster ${idx + 1}
-            ${focusSkills.length ? `- <span style="color:var(--purple);font-weight:400">${focusSkills.slice(0,2).join(', ')}</span>` : ''}
+            ${communityName}
           </div>
           <span class="component-badge badge-cluster">${cluster.length} member${cluster.length !== 1 ? 's' : ''}</span>
         </div>

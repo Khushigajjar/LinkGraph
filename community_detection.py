@@ -10,7 +10,7 @@ def top_cluster_skills(cluster, limit=3):
     return [skill for skill, _ in ranked[:limit]]
 
 def find_connected_components():
-    visited = set()
+    visited    = set()
     components = []   
 
     for user_id in users:
@@ -18,7 +18,7 @@ def find_connected_components():
             continue  
 
         component = []
-        stack = [user_id]
+        stack     = [user_id]
 
         while stack:
             current = stack.pop()   
@@ -39,12 +39,12 @@ def find_connected_components():
     for component in components:
         result.append([
             {
-                "id": uid,
-                "name": users[uid]["name"],
-                "avatar": users[uid]["avatar"],
+                "id":       uid,
+                "name":     users[uid]["name"],
+                "avatar":   users[uid]["avatar"],
                 "headline": users[uid]["headline"],
-                "company": users[uid]["company"],
-                "skills": users[uid]["skills"]
+                "company":  users[uid]["company"],
+                "skills":   users[uid]["skills"]
             }
             for uid in component
         ])
@@ -72,44 +72,42 @@ def cosine_similarity(vec_a, vec_b):
     return round(dot_product / (mag_a * mag_b), 4)
 
 
+COMMUNITY_DEFINITIONS = [
+    ("AI Strategy Community", ["AI Strategy", "Machine Learning", "Recommendation Systems"]),
+    ("Data Analytics Community", ["Data Analytics", "People Analytics", "Data Science", "Business Analytics"]),
+    ("Product Management Community", ["Product Management", "Product Strategy", "Stakeholder Management"]),
+    ("Backend Engineering Community", ["Python", "Flask", "Graph Algorithms", "API Design"]),
+    ("Design and UX Community", ["Product Design", "UX Research", "Design Systems", "User Interviews"]),
+    ("Professional Growth Community", ["Employer Branding", "Community Building", "Networking", "Learning Programs"])
+]
+
+
 def find_skill_clusters(threshold=0.4):
-    vocab    = build_vocabulary()
-    assigned = set()    
     clusters = []
 
-    for uid, user in users.items():
-        if uid in assigned:
-            continue
+    for community_name, focus_skills in COMMUNITY_DEFINITIONS:
+        focus = set(focus_skills)
+        cluster = [
+            uid for uid, user in users.items()
+            if focus & set(user["skills"])
+        ]
 
-        
-        cluster = [uid]
-        assigned.add(uid)
-        vec_a = skill_vector(user, vocab)
-
-        for other_id, other_user in users.items():
-            if other_id in assigned:
-                continue
-
-            vec_b = skill_vector(other_user, vocab)
-            score = cosine_similarity(vec_a, vec_b)
-
-            if score >= threshold:
-                cluster.append(other_id)
-                assigned.add(other_id)
-
-        clusters.append(cluster)
+        if len(cluster) >= 2:
+            clusters.append((community_name, focus_skills, cluster))
 
     result = []
-    for cluster in clusters:
-        focus = top_cluster_skills(cluster)
+    for community_name, focus, cluster in clusters:
         result.append([
             {
-                "id":  uid,
-                "name": users[uid]["name"],
-                "avatar": users[uid]["avatar"],
-                "headline":users[uid]["headline"],
-                "company":users[uid]["company"],
-                "skills": users[uid]["skills"],
+                "id":       uid,
+                "name":     users[uid]["name"],
+                "avatar":   users[uid]["avatar"],
+                "headline": users[uid]["headline"],
+                "company":  users[uid]["company"],
+                "skills":   users[uid]["skills"],
+                "cluster_focus": focus,
+                "community_name": community_name,
+                "cluster_summary": "Members share " + ", ".join(focus[:3])
             }
             for uid in cluster
         ])
@@ -118,9 +116,9 @@ def find_skill_clusters(threshold=0.4):
 
 def find_influence_hubs():
     user_ids = sorted(users.keys())
-    n = len(user_ids)
+    n        = len(user_ids)
 
-    
+    # Map user_id → matrix index
     id_to_index = {uid: i for i, uid in enumerate(user_ids)}
 
     matrix = [[0] * n for _ in range(n)]
@@ -135,8 +133,8 @@ def find_influence_hubs():
    
     scores = []
     for uid in user_ids:
-        i = id_to_index[uid]
-        degree = sum(matrix[i])  
+        i             = id_to_index[uid]
+        degree        = sum(matrix[i])  
         second_degree = 0
 
         
@@ -145,11 +143,11 @@ def find_influence_hubs():
                 second_degree += sum(matrix[j])
 
         scores.append({
-            "id":  uid,
-            "name": users[uid]["name"],
-            "avatar": users[uid]["avatar"],
-            "headline":users[uid]["headline"],
-            "company":users[uid]["company"],
+            "id":             uid,
+            "name":           users[uid]["name"],
+            "avatar":         users[uid]["avatar"],
+            "headline":       users[uid]["headline"],
+            "company":        users[uid]["company"],
             "direct_connections":  degree,
             "network_reach":  degree + second_degree,
             "hub_reason":     "High second-degree reach across the professional graph"
@@ -161,6 +159,6 @@ def find_influence_hubs():
 def get_communities():
     return {
         "connected_components": find_connected_components(),
-        "skill_clusters": find_skill_clusters(),
-        "influence_hubs": find_influence_hubs()
+        "skill_clusters":       find_skill_clusters(),
+        "influence_hubs":       find_influence_hubs()
     }

@@ -17,7 +17,7 @@
 
   <div class="nav-center">
     <a class="nav-link" href="/feed-page">Feed Ranking</a>
-    <a class="nav-link " href="/connections-page">Connections</a>
+    <a class="nav-link" href="/connections-page">Connections</a>
     <a class="nav-link active" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
   </div>
@@ -39,12 +39,8 @@
     <!-- Page header -->
     <div class="page-header">
       <div>
-        <div class="page-title">Content Recommendations</div>
-        <div class="page-subtitle">Posts matched to your skills using cosine similarity</div>
-      </div>
-      <div class="algo-tag">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-        Cosine Similarity
+        <div class="page-title">Recommended for You</div>
+        <div class="page-subtitle">Posts and people matched to your professional interests</div>
       </div>
     </div>
 
@@ -111,27 +107,6 @@
       </div>
     </div>
 
-    <!-- Algorithm explainer -->
-    <div class="card">
-      <div class="sidebar-section">
-        
-  <div class="sidebar-title">Complexity</div>
-  <div style="font-size:12px;color:var(--muted);line-height:1.8">
-
-    Build vocabulary: <strong style="color:var(--text)">O(U × S)</strong><br>
-    Cosine similarity: <strong style="color:var(--text)">O(S)</strong><br>
-    Find similar users: <strong style="color:var(--text)">O(U² × S)</strong><br>
-    Collaborative filtering: <strong style="color:var(--text)">O(U² × S + P)</strong><br>
-    Trending (divide & conquer): <strong style="color:var(--text)">O(P)</strong><br>
-    Top-N trending posts: <strong style="color:var(--text)">O(N × P)</strong><br>
-    Final merge: <strong style="color:var(--text)">O(P)</strong>
-
-  </div>
-</div>
-
-      </div>
-    </div>
-
   </aside>
 
 </div>
@@ -145,21 +120,32 @@
   async function init() {
     const res = await fetch('/users');
     allUsers  = await res.json();
+    renderUserSwitcher(allUsers);
     await selectUser(1);
-
-    
 
     const meRes = await fetch('/me');
     if (meRes.status === 401) { window.location.href = '/login'; return; }
     const me = await meRes.json();
-
-
-    document.getElementById('nav-user').textContent = me.name.split(' ')[0];
-    document.getElementById('nav-avatar').src       = me.avatar;
-
+    const navUser = document.getElementById('nav-user');
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navUser) navUser.textContent = me.name.split(' ')[0];
+    if (navAvatar) navAvatar.src = me.avatar;
   }
 
-  
+  function renderUserSwitcher(users) {
+    const container = document.getElementById('user-list');
+    container.innerHTML = users.map(u => `
+      <button class="user-pill ${u.id === currentUserId ? 'active' : ''}"
+              id="pill-${u.id}" onclick="selectUser(${u.id})">
+        <img src="${u.avatar}" alt="${u.name}"
+             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0077B5&color=fff&size=64'">
+        <div>
+          <div class="pill-name">${u.name}</div>
+          <div class="pill-company">${u.company}</div>
+        </div>
+      </button>
+    `).join('');
+  }
 
   async function selectUser(userId) {
     currentUserId = userId;
@@ -196,8 +182,6 @@
     if (currentTab === 'trending') await loadTrending();
   }
 
-  
-
   // ── Recommended posts ──────────────────────────────────
   async function loadRecommendations() {
     const container = document.getElementById('posts-container');
@@ -215,15 +199,11 @@
     posts.forEach((post, index) => {
       const delay  = index * 70;
       const source = post.source === 'personalised' ? 'personalised' : 'trending';
-      const badgeClass = source === 'personalised' ? 'source-personal' : 'source-trending';
-      const badgeLabel = post.recommendation_type || (source === 'personalised' ? 'For you' : 'Trending');
 
       const el = document.createElement('div');
       el.className = 'post-card';
       el.style.animationDelay = `${delay}ms`;
       el.innerHTML = `
-        <span class="source-badge ${badgeClass}">${badgeLabel}</span>
-
         <div class="post-header">
           <img class="post-avatar"
                src="${post.author_avatar}"
@@ -247,15 +227,15 @@
 
         <div class="post-stats">
           <span class="stat-item">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
             ${post.likes}
           </span>
           <span class="stat-item">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
             ${post.comments}
           </span>
           <span class="stat-item">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
             ${post.shares}
           </span>
         </div>
@@ -280,7 +260,6 @@
     container.innerHTML = '';
     users.forEach((user, index) => {
       const delay    = index * 70;
-      const barWidth = (user.similarity * 100).toFixed(0);
 
       const currentUser   = allUsers.find(u => u.id === currentUserId);
       const currentSkills = new Set(currentUser ? currentUser.skills : []);
@@ -297,12 +276,6 @@
         <div class="similar-info">
           <div class="similar-name">${user.name}</div>
           <div class="similar-headline">${user.headline}</div>
-          <div class="sim-bar-wrap">
-            <div class="sim-bar-track">
-              <div class="sim-bar-fill" style="width: ${barWidth}%"></div>
-            </div>
-            <span class="sim-score">${(user.similarity * 100).toFixed(0)}% match</span>
-          </div>
           <div class="shared-skills">
             ${sharedSkills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
           </div>
@@ -325,7 +298,6 @@
     const top3  = (data.posts || []).slice(0, 3);
 
     container.innerHTML = '';
-
     top3.forEach((post, index) => {
       const delay = index * 70;
       const el    = document.createElement('div');
@@ -348,24 +320,21 @@
 
         <p class="post-content">${post.content}</p>
 
-        ${post.match_reason ? `
-        <div class="recommendation-reason">Trending signal: ${post.match_reason}</div>` : ''}
-
         <div class="post-tags">
           ${(post.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
         </div>
 
         <div class="post-stats">
           <span class="stat-item">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/></svg>
             ${post.likes}
           </span>
           <span class="stat-item">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2h14l4 4-.01-18z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2h14l4 4-.01-18z"/></svg>
             ${post.comments}
           </span>
           <span class="stat-item">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
             ${post.shares}
           </span>
         </div>
