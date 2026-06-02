@@ -30,18 +30,28 @@ def template_css(filename):
 
 @app.route("/me")
 def me():
+    import json
+
     user_id = session.get("user_id", 1)
-    user = users[user_id]
+
+    with open("dataset.json") as f:
+        data = json.load(f)
+
+    users = data["users"]
+    user = next((u for u in users if u["id"] == user_id), None)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
     return jsonify({
         "id": user["id"],
         "name": user["name"],
         "avatar": user["avatar"],
-        "headline":user["headline"],
-        "company":user["company"],
-        "skills":user["skills"],
-        "connections_list":user["connections"]
+        "headline": user["headline"],
+        "company": user["company"],
+        "skills": user["skills"],
+        "connections_list": user["connections"]
     })
-
 
 @app.route("/feed-page")
 def feed_page():
@@ -331,14 +341,44 @@ def communities_page():
         return redir
     return render_template("communities.html")
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
+
     if request.method == "POST":
         username = request.form.get("username", "").strip().lower()
         password = request.form.get("password", "").strip()
-        user_id  = verify_login(username, password)
+
+        user_id = verify_login(username, password)
+        if not user_id:
+            import json, random
+
+            with open("dataset.json") as f:
+                data = json.load(f)
+
+            users = data["users"]
+
+            new_id = len(users) + 1
+
+            skills_pool = ["Python", "ML", "Web Dev", "AI", "Data Science"]
+            companies = ["Google", "Amazon", "Capgemini", "Microsoft"]
+
+            new_user = {
+                "id": new_id,
+                "name": username.capitalize() + f" {new_id}",
+                "headline": random.choice(skills_pool) + " Engineer",
+                "company": random.choice(companies),
+                "avatar": f"https://ui-avatars.com/api/?name={username}",
+                "skills": random.sample(skills_pool, 2),
+                "connections": []
+            }
+
+            users.append(new_user)
+
+            with open("dataset.json", "w") as f:
+                json.dump(data, f, indent=2)
+
+            user_id = new_id 
 
         if user_id:
             session["user_id"] = user_id
@@ -432,4 +472,3 @@ def _print_startup_complexity():
 if __name__ == "__main__":
     _print_startup_complexity()
     app.run(debug=True, use_reloader=False, port=5001)
-    
