@@ -29,6 +29,11 @@
 
 
 <div class="layout">
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 086d3c03330fbd018c1cbde732157f8e09a71a22
   <div>
 
     <!-- Page header -->
@@ -39,7 +44,7 @@
       
     </div>
 
-    <!-- Active filter bar (hidden until a tag is clicked) -->
+    
     <div class="filter-bar" id="filter-bar" style="display:none">
       <span style="font-size:12px;color:var(--muted);align-self:center">Filter:</span>
       <button class="filter-chip active" onclick="clearFilter()">All posts</button>
@@ -76,8 +81,11 @@
   </div>
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 086d3c03330fbd018c1cbde732157f8e09a71a22
 
 
   <aside>
@@ -186,7 +194,7 @@
   let myConnections = [];
 
   async function init() {
-    // load current user for nav
+    
     const meRes = await fetch('/me');
     if (meRes.status === 401) { window.location.href = '/login'; return; }
     const me = await meRes.json();
@@ -414,7 +422,6 @@ document.getElementById('side-skills').innerHTML = (me.skills || []).map(s =>
     document.getElementById('filter-bar').style.display = 'none';
     renderPosts(allPosts);
   }
-
   
   function skeletonPost() {
     return `
@@ -475,7 +482,7 @@ async function submitPost() {
 
   if (data.success) {
     closeComposer();
-    await loadFeed();   // reload feed to show new post
+    await loadFeed();   
   } else {
     errEl.textContent = data.error || 'Something went wrong.';
     btn.textContent   = 'Post';

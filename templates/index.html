@@ -236,12 +236,12 @@
   }
 
 
-  // ── Connections ───────────────────────────────────────
+  
   async function loadSuggestions(userId) {
   const res  = await fetch(`/connections/${userId}`);
   const data = await res.json();
 
-  // RIGHT SIDEBAR (now optional)
+ 
   const list = document.getElementById('suggestions-list');
   if (list) {  
     if (!data.length) {
