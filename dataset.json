@@ -978,6 +978,30 @@
         36,
         39
       ]
+    },
+    {
+      "id": 51,
+      "name": "Khushi 51",
+      "headline": "Web Dev Engineer",
+      "company": "Capgemini",
+      "avatar": "https://ui-avatars.com/api/?name=khushi",
+      "skills": [
+        "Data Science",
+        "Web Dev"
+      ],
+      "connections": []
+    },
+    {
+      "id": 52,
+      "name": "Khushi 52",
+      "headline": "ML Engineer",
+      "company": "Google",
+      "avatar": "https://ui-avatars.com/api/?name=khushi",
+      "skills": [
+        "Data Science",
+        "Python"
+      ],
+      "connections": []
     }
   ],
   "posts": [
