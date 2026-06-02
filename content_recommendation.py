@@ -115,7 +115,7 @@ def find_trending(post_list):
     return right
 
 
-def get_trending_posts(top_n=3):
+def get_trending_posts(top_n=5):
     remaining = list(posts)
     trending = []
 
