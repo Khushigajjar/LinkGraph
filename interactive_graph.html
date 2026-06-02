@@ -4,276 +4,386 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkGraph — Live Algorithmic Simulation Dashboard</title>
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
     <style>
+        :root {
+            --linkedin-blue: #0A66C2;
+            --bg-main: #f3f2ef;
+            --text-dark: #1d1d1d;
+            --text-muted: #5f5f5f;
+            --border-color: #e0e0e0;
+            --card-bg: #ffffff;
+            --rec-orange: #ff5722;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f3f2ef;
+            background: var(--bg-main);
             display: flex;
             height: 100vh;
             overflow: hidden;
+            color: var(--text-dark);
         }
+
         #sidebar {
-            width: 320px;
-            background-color: #ffffff;
-            border-right: 1px solid #e0e0e0;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            width: 340px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
             display: flex;
             flex-direction: column;
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.03);
+            overflow-y: auto;
             z-index: 10;
         }
-        #network-container {
-            flex-grow: 1;
-            position: relative;
-            background-color: #f8f9fa;
+
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--linkedin-blue);
+            margin-top: 0;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
         }
-        h2 { color: #0A66C2; margin-top: 0; font-size: 22px; border-bottom: 2px solid #f3f2ef; padding-bottom: 10px; }
-        h3 { color: #333; margin-bottom: 5px; font-size: 16px; }
-        .instruction-box {
-            background-color: #e7f3ff;
-            color: #004182;
-            padding: 12px;
-            border-radius: 8px;
+        
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        h3 {
             font-size: 14px;
-            margin-bottom: 20px;
-            border-left: 4px solid #0A66C2;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+            margin-bottom: 8px;
         }
+
+        .instruction-box {
+            background: #e7f3ff;
+            padding: 14px;
+            border-left: 4px solid var(--linkedin-blue);
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #004182;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
         .metric-card {
             background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 10px;
-            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
         }
+
+        #user-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        #user-headline {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        #user-company {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--linkedin-blue);
+            background: #e8f3ff;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        #user-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 4px 0;
+        }
+
         .skill-tag {
             display: inline-block;
-            background: #e1f5fe;
-            color: #0288d1;
+            background: #f2f4f8;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+        }
+
+        #rec-summary {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .rec-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .rec-item:last-child {
+            border-bottom: none;
+        }
+
+        .rec-arrow {
+            color: var(--rec-orange);
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .rec-count {
+            margin-left: auto;
+            background: #fff3e0;
+            color: #e65100;
+            font-size: 11px;
+            font-weight: 700;
             padding: 2px 6px;
             border-radius: 4px;
+            border: 1px solid #ffe0b2;
+        }
+        #network-container {
+            flex: 1;
+            background: #f8f9fa;
+            position: relative;
+        }
+
+        #network-container::before {
+            content: "LIVE GRAPH MODEL VIEWPORT";
+            position: absolute;
+            top: 20px;
+            right: 20px;
             font-size: 11px;
-            margin: 2px;
-            font-weight: 600;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+            z-index: 5;
         }
     </style>
 </head>
+
 <body>
 
-    <div id="sidebar">
-        <h2>LinkGraph Engine</h2>
-        <div class="instruction-box" id="status-box">
-            <strong>Live Demo Guide:</strong><br>Click on any user node in the network to simulate our backend BFS/DFS algorithms live!
-        </div>
-        
-        <div id="analytics-panel" style="display: none;">
-            <h3>Active Profile Node</h3>
-            <div class="metric-card">
-                <strong id="user-name" style="font-size: 16px; color:#0A66C2;">-</strong><br>
-                <span id="user-headline" style="color:#555; font-style:italic;">-</span><br>
-                <strong>Company:</strong> <span id="user-company">-</span>
-            </div>
+<div id="sidebar">
+    <h2>LinkGraph</h2>
+    <div class="sidebar-subtitle">Advanced Algorithms Platform</div>
 
-            <h3>Module 3: Community Context</h3>
-            <div class="metric-card">
-                <strong>Detected Cluster:</strong> <span id="user-cluster">-</span><br>
-                <div id="user-skills" style="margin-top: 5px;"></div>
-            </div>
-
-            <h3>Module 1 & 2: Real-time Recommendations</h3>
-            <div class="metric-card" style="border-left: 4px solid #ff5722;">
-                <strong>BFS Calculated Paths:</strong><br>
-                <span id="rec-summary" style="color: #d84315; font-weight:bold;">-</span>
-            </div>
-        </div>
+    <div class="instruction-box" id="status-box">
+        <strong>Live Demo Mode:</strong><br>Click any profile node in the network map to run live BFS recommendations and cluster community highlights.
     </div>
 
-    <div id="network-container"></div>
+    <div id="analytics-panel" style="display:none;">
+        <h3>Active Profile</h3>
+        <div class="metric-card">
+            <div id="user-name"></div>
+            <div id="user-headline"></div>
+            <div id="user-company"></div>
+        </div>
 
-    <script>
-        // TARGET DATASETS DETACHED DIRECTLY FROM RAW USER DATASET
-        const dataset = {
-          "users": [
-            { "id": 1, "name": "Alex Morgan", "headline": "Data Product Manager | AI Strategy", "company": "Microsoft", "skills": ["Product Management", "Data Analytics", "AI Strategy", "Stakeholder Management"], "connections": [2, 3, 5, 8, 10, 14] },
-            { "id": 2, "name": "Priya Shah", "headline": "Talent Acquisition Lead | Employer Branding", "company": "LinkedIn", "skills": ["Talent Acquisition", "Employer Branding", "People Analytics", "Networking"], "connections": [1, 4, 6, 8, 12, 15] },
-            { "id": 3, "name": "Marcus Lee", "headline": "Machine Learning Engineer | Recommendations", "company": "Google", "skills": ["Machine Learning", "Python", "Recommendation Systems", "Graphs"], "connections": [1, 5, 7, 10, 13] },
-            { "id": 4, "name": "Sofia Garcia", "headline": "UX Researcher | Professional Platforms", "company": "Meta", "skills": ["UX Research", "User Interviews", "Product Strategy", "Networking"], "connections": [2, 6, 9, 11, 15] },
-            { "id": 5, "name": "Ethan Brooks", "headline": "Cloud Solutions Architect | Enterprise Systems", "company": "Amazon", "skills": ["AWS", "Cloud Architecture", "DevOps", "Stakeholder Management"], "connections": [1, 3, 7, 8, 14] },
-            { "id": 6, "name": "Maya Patel", "headline": "People Analytics Consultant | Workforce Insights", "company": "Deloitte", "skills": ["People Analytics", "SQL", "Data Analytics", "Talent Acquisition"], "connections": [2, 4, 9, 12, 15] },
-            { "id": 7, "name": "Noah Kim", "headline": "Backend Engineer | Graph APIs", "company": "GitHub", "skills": ["Python", "Flask", "Graph Algorithms", "API Design"], "connections": [3, 5, 10, 13, 14] },
-            { "id": 8, "name": "Emma Wilson", "headline": "Business Analyst | Growth and Partnerships", "company": "Salesforce", "skills": ["Business Analytics", "Stakeholder Management", "CRM", "Networking"], "connections": [1, 2, 5, 11, 12] },
-            { "id": 9, "name": "Liam Chen", "headline": "Product Designer | Career Experiences", "company": "Adobe", "skills": ["Product Design", "UX Research", "Design Systems", "User Interviews"], "connections": [4, 6, 11, 13, 15] },
-            { "id": 10, "name": "Aisha Khan", "headline": "Data Scientist | Network Growth Models", "company": "Spotify", "skills": ["Data Science", "Machine Learning", "Graphs", "Python"], "connections": [1, 3, 7, 14] },
-            { "id": 11, "name": "Daniel Reed", "headline": "Customer Success Manager | B2B Communities", "company": "HubSpot", "skills": ["Customer Success", "CRM", "Community Building", "Stakeholder Management"], "connections": [4, 8, 9, 12, 15] },
-            { "id": 12, "name": "Grace Taylor", "headline": "HR Business Partner | Learning Programs", "company": "Accenture", "skills": ["Learning Programs", "People Analytics", "Employer Branding", "Community Building"], "connections": [2, 6, 8, 11, 15] },
-            { "id": 13, "name": "Olivia Brown", "headline": "Frontend Engineer | Design Systems", "company": "Canva", "skills": ["React", "Design Systems", "API Design", "Product Design"], "connections": [3, 7, 9, 14] },
-            { "id": 14, "name": "Ravi Nair", "headline": "Cybersecurity Analyst | Cloud Risk", "company": "IBM", "skills": ["Cybersecurity", "Cloud Architecture", "DevOps", "Risk Management"], "connections": [1, 5, 7, 10, 13] },
-            { "id": 15, "name": "Chen Wu", "headline": "Marketing Strategist | Professional Communities", "company": "Atlassian", "skills": ["Employer Branding", "Community Building", "Product Strategy", "Networking"], "connections": [2, 4, 6, 9, 11, 12] }
-          ]
-        };
+        <h3>Detected Domain Skills</h3>
+        <div id="user-skills"></div>
 
-        // GLOBAL CONFIGURATION CONFIG MAPS
-        const clusterColors = {
-            "AI & Data Intelligence": { background: '#ece0f2', border: '#7B2D8B', color: '#7B2D8B' },
-            "Cloud & Infrastructure": { background: '#e2f3eb', border: '#057642', color: '#057642' },
-            "Product Strategy & UX": { background: '#fcebe6', border: '#B24020', color: '#B24020' },
-            "Talent & Corporate Growth": { background: '#e7f3ff', border: '#0A66C2', color: '#0A66C2' }
-        };
+        <h3>Algorithmic Recommendations</h3>
+        <div class="metric-card" style="border-left: 4px solid var(--rec-orange); background: #fffbf7;">
+            <div id="rec-summary"></div>
+        </div>
+    </div>
+</div>
 
-        function getCommunity(skills) {
-            if (skills.some(s => ["Machine Learning", "Data Science", "Python", "Graphs"].includes(s))) return "AI & Data Intelligence";
-            if (skills.some(s => ["Cloud Architecture", "Backend Engineer", "Flask", "DevOps", "Cybersecurity"].includes(s))) return "Cloud & Infrastructure";
-            if (skills.some(s => ["UX Research", "Product Design", "Design Systems"].includes(s))) return "Product Strategy & UX";
-            return "Talent & Corporate Growth";
-        }
+<div id="network-container"></div>
 
-        // INITIALIZE COMPONENT NODES & SOLID EDGES
-        let nodesArray = [];
-        let edgesArray = [];
-        let connectionMap = {};
+<script>
+let nodes, edges, network;
+let nodesArray = [];
+let edgesArray = [];
+let connectionMap = {};
 
-        dataset.users.forEach(user => {
-            const group = getCommunity(user.skills);
-            connectionMap[user.id] = new Set(user.connections);
-            
-            nodesArray.push({
-                id: user.id,
-                label: user.name,
-                title: user.headline,
-                color: clusterColors[group],
-                shape: 'dot',
-                size: 22,
-                font: { size: 14, face: 'Arial', color: '#333333' },
-                originalColor: clusterColors[group],
-                userMeta: user,
-                clusterGroup: group
-            });
+const clusterColors = {
+    "AI & Data Intelligence": { background: '#ece0f2', border: '#7B2D8B' },
+    "Cloud & Infrastructure": { background: '#e2f3eb', border: '#057642' },
+    "Product Strategy & UX": { background: '#fcebe6', border: '#B24020' },
+    "Talent & Corporate Growth": { background: '#e7f3ff', border: '#0A66C2' }
+};
 
-            user.connections.forEach(connId => {
-                if (user.id < connId) { // Prevent redundant bidirectional drawings
-                    edgesArray.push({
-                        id: `base-${user.id}-${connId}`,
-                        from: user.id,
-                        to: connId,
-                        color: { color: '#cfd8dc', highlight: '#0A66C2' },
-                        width: 1.5,
-                        isBase: true
-                    });
-                }
-            });
+function getCommunity(skills) {
+    if (skills.some(s => ["Machine Learning", "Data Science", "Python", "Graphs"].includes(s)))
+        return "AI & Data Intelligence";
+    if (skills.some(s => ["Cloud Architecture", "Backend Engineer", "Flask", "DevOps", "Cybersecurity"].includes(s)))
+        return "Cloud & Infrastructure";
+    if (skills.some(s => ["UX Research", "Product Design", "Design Systems"].includes(s)))
+        return "Product Strategy & UX";
+    return "Talent & Corporate Growth";
+}
+
+function buildGraph(users) {
+    nodesArray = [];
+    edgesArray = [];
+    connectionMap = {};
+
+    users.forEach(user => {
+        const group = getCommunity(user.skills);
+        connectionMap[user.id] = new Set(user.connections);
+
+        nodesArray.push({
+            id: user.id,
+            label: user.name,
+            title: user.headline,
+            color: clusterColors[group],
+            shape: 'dot',
+            size: 20,
+            font: { size: 13, face: 'Arial', color: '#2c3e50' },
+            originalColor: clusterColors[group], 
+            clusterGroup: group,
+            userMeta: user
         });
 
-        const nodes = new vis.DataSet(nodesArray);
-        const edges = new vis.DataSet(edgesArray);
+        user.connections.forEach(conn => {
+            if (user.id < conn) {
+                edgesArray.push({
+                    id: `base-${user.id}-${conn}`,
+                    from: user.id,
+                    to: conn,
+                    color: { color: '#cbd5e1', highlight: '#0A66C2' },
+                    width: 1.5,
+                    isBase: true
+                });
+            }
+        });
+    });
 
-        const container = document.getElementById('network-container');
-        const graphData = { nodes: nodes, edges: edges };
-        const options = {
-            physics: { barnesHut: { gravity: -4000, centralGravity: 0.15, springLength: 140 } },
+    nodes = new vis.DataSet(nodesArray);
+    edges = new vis.DataSet(edgesArray);
+
+    network = new vis.Network(
+        document.getElementById("network-container"),
+        { nodes, edges },
+        {
+            physics: { 
+                barnesHut: { 
+                    gravity: -3800,
+                    centralGravity: 0.15,
+                    springLength: 140
+                } 
+            },
             interaction: { hover: true, selectConnectedEdges: false }
-        };
+        }
+    );
 
-        const network = new vis.Network(container, graphData, options);
+    network.on("selectNode", onSelectNode);
+    network.on("deselectNode", onDeselectNode);
+}
 
-        // -------------------------------------------------------------------------
-        // DYNAMIC INTERACTION LOGIC (RUNS LIVE ALGORITHMS ON CLICK)
-        // -------------------------------------------------------------------------
-        network.on("selectNode", function (params) {
-            const selectedId = params.nodes[0];
-            const activeNode = nodes.get(selectedId);
-            const userMeta = activeNode.userMeta;
-            
-            // 1. Reveal Sidebar Stats
-            document.getElementById('status-box').innerHTML = `<strong>⚡ Live Engine Running:</strong> Tracing BFS paths and community graphs for ${userMeta.name}!`;
-            document.getElementById('analytics-panel').style.display = 'block';
-            document.getElementById('user-name').innerText = userMeta.name;
-            document.getElementById('user-headline').innerText = userMeta.headline;
-            document.getElementById('user-company').innerText = userMeta.company;
-            document.getElementById('user-cluster').innerText = activeNode.clusterGroup;
-            
-            const skillDiv = document.getElementById('user-skills');
-            skillDiv.innerHTML = '';
-            userMeta.skills.forEach(s => {
-                skillDiv.innerHTML += `<span class="skill-tag">${s}</span>`;
-            });
+function onSelectNode(params) {
+    const id = params.nodes[0];
+    const clickedNode = nodes.get(id);
+    const user = clickedNode.userMeta;
 
-            // 2. LIVE BFS RECOMMENDATION TRAVERSAL (Friends of Friends Heuristic)
-            const myFriends = connectionMap[selectedId];
-            let recommendations = {};
+    document.getElementById("status-box").innerHTML = `<strong>Engine Running:</strong> Calculating 2nd-degree vector expansions for <strong>${user.name}</strong>.`;
+    document.getElementById("analytics-panel").style.display = "block";
+    document.getElementById("user-name").innerText = user.name;
+    document.getElementById("user-headline").innerText = user.headline;
+    document.getElementById("user-company").innerText = user.company;
 
-            myFriends.forEach(friendId => {
-                if (connectionMap[friendId]) {
-                    connectionMap[friendId].forEach(fofId => {
-                        if (fofId !== selectedId && !myFriends.has(fofId)) {
-                            recommendations[fofId] = (recommendations[fofId] || 0) + 1;
-                        }
-                    });
-                }
-            });
+    document.getElementById("user-skills").innerHTML =
+        user.skills.map(s => `<span class="skill-tag">${s}</span>`).join("");
 
-            // Clean previous recommendation edges from the map layer
-            const currentEdges = edges.get();
-            currentEdges.forEach(edge => {
-                if (!edge.isBase) edges.remove(edge.id);
-            });
+    const friends = connectionMap[id] || new Set();
+    let recs = {};
 
-            // 3. GRAPH HIGHLIGHTING AND NEW EDGE INJECTIONS
-            let recSummaryText = "";
-            let recCount = 0;
-
-            // Highlight matching connection branches, dim remaining graph nodes out
-            const updatedNodes = nodesArray.map(node => {
-                let colorSetting = { ...node.originalColor };
-                if (node.id === selectedId) {
-                    // Accentuate target active node
-                    return { ...node, size: 30, color: colorSetting };
-                } else if (myFriends.has(node.id)) {
-                    // Keep 1st degree connections vibrant
-                    return { ...node, size: 22, color: colorSetting };
-                } else if (recommendations[node.id]) {
-                    // Inject a recommendation link edge live on screen
-                    recCount++;
-                    const mutuals = recommendations[node.id];
-                    const targetName = node.label;
-                    recSummaryText += `➔ Suggest connecting with <strong>${targetName}</strong> (${mutuals} mutual friends)<br>`;
-                    
-                    edges.add({
-                        from: selectedId,
-                        to: node.id,
-                        color: { color: '#ff5722', width: 3 },
-                        style: 'dashed',
-                        dasharray: [5, 5],
-                        label: 'Rec Link',
-                        font: { size: 11, color: '#ff5722', align: 'top' },
-                        isBase: false
-                    });
-
-                    return { ...node, size: 24, color: { background: '#ffe0b2', border: '#ff5722' } };
-                } else {
-                    // Dim unrelated elements out of focal plane
-                    return { ...node, size: 16, color: { background: '#f5f5f5', border: '#e0e0e0', color: '#cccccc' } };
-                }
-            });
-            nodes.update(updatedNodes);
-            
-            document.getElementById('rec-summary').innerHTML = recCount > 0 ? recSummaryText : "Network saturated. No new 2nd degree nodes found.";
+    friends.forEach(f => {
+        (connectionMap[f] || []).forEach(ff => {
+            if (ff !== id && !friends.has(ff)) {
+                recs[ff] = (recs[ff] || 0) + 1;
+            }
         });
+    });
+    const currentEdges = edges.get();
+    currentEdges.forEach(e => {
+        if (!e.isBase) edges.remove(e.id);
+    });
 
-        // RESET MAP TO BASELINE ON BLANK DESELECT
-        network.on("deselectNode", function (params) {
-            document.getElementById('status-box').innerHTML = `<strong>💡 Live Demo Guide:</strong> Click on any user node in the network to simulate our backend BFS/DFS algorithms live!`;
-            document.getElementById('analytics-panel').style.display = 'none';
-            
-            // Revert configuration settings back to default core matrices
-            nodes.update(nodesArray);
-            const currentEdges = edges.get();
-            currentEdges.forEach(edge => {
-                if (!edge.isBase) edges.remove(edge.id);
+    let htmlContent = "";
+    
+    const updatedNodes = nodesArray.map(node => {
+        if (node.id === id) {
+            return { ...node, size: 30, color: node.originalColor };
+        } else if (friends.has(node.id)) {
+            return { ...node, size: 22, color: node.originalColor };
+        } else if (recs[node.id]) {
+            const mutualCount = recs[node.id];
+            htmlContent += `
+                <div class="rec-item">
+                    <span class="rec-arrow">➜</span>
+                    <strong>${node.label}</strong>
+                    <span class="rec-count">${mutualCount} mutual</span>
+                </div>`;
+
+            edges.add({
+                id: `rec-${id}-${node.id}`,
+                from: id,
+                to: node.id,
+                color: { color: '#ff5722' },
+                width: 2.5,
+                dashes: [5, 5],
+                label: 'Rec Link',
+                font: { size: 11, color: '#ff5722', align: 'top', strokeWidth: 0 },
+                isBase: false
             });
-        });
-    </script>
+
+            return { ...node, size: 24, color: { background: '#ffe0b2', border: '#ff5722' } };
+        } else {
+            return { ...node, size: 14, color: { background: '#f5f5f5', border: '#e2e8f0' }, font: { color: '#94a3b8' } };
+        }
+    });
+
+    nodes.update(updatedNodes);
+    document.getElementById("rec-summary").innerHTML =
+        htmlContent || "<span style='color: var(--text-muted); font-style: italic;'>No 2nd-degree recommendations available.</span>";
+        
+    network.focus(id, { scale: 0.95, animation: { duration: 400, easingFunction: "easeInOutQuad" } });
+}
+function onDeselectNode() {
+    document.getElementById("status-box").innerHTML = `<strong>Live Demo Mode:</strong><br>Click any profile node in the network map to run live BFS recommendations and cluster community highlights.`;
+    document.getElementById("analytics-panel").style.display = "none";
+
+    const currentEdges = edges.get();
+    currentEdges.forEach(e => {
+        if (!e.isBase) edges.remove(e.id);
+    });
+    nodes.update(nodesArray.map(n => ({
+        ...n,
+        size: 20,
+        color: n.originalColor,
+        font: { size: 13, face: 'Arial', color: '#2c3e50' }
+    })));
+}
+
+fetch("dataset.json")
+    .then(res => res.json())
+    .then(data => {
+        buildGraph(data.users);
+    });
+</script>
+
 </body>
 </html>
