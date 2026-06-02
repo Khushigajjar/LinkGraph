@@ -33,13 +33,13 @@ def me():
     user_id = session.get("user_id", 1)
     user = users[user_id]
     return jsonify({
-        "id":               user["id"],
-        "name":             user["name"],
-        "avatar":           user["avatar"],
-        "headline":         user["headline"],
-        "company":          user["company"],
-        "skills":           user["skills"],
-        "connections_list": user["connections"]
+        "id": user["id"],
+        "name": user["name"],
+        "avatar": user["avatar"],
+        "headline":user["headline"],
+        "company":user["company"],
+        "skills":user["skills"],
+        "connections_list":user["connections"]
     })
 
 
@@ -71,12 +71,12 @@ def get_users():
     user_list = []
     for user in users.values():
         user_list.append({
-            "id":       user["id"],
-            "name":     user["name"],
-            "headline": user["headline"],
-            "avatar":   user["avatar"],
-            "company":  user["company"],
-            "skills":   user["skills"],
+            "id":user["id"],
+            "name":user["name"],
+            "headline":user["headline"],
+            "avatar":  user["avatar"],
+            "company": user["company"],
+            "skills": user["skills"],
             "connections": len(user["connections"])
         })
     return jsonify(user_list)
@@ -89,12 +89,12 @@ def get_user(user_id):
 
     user = users[user_id]
     return jsonify({
-        "id":         user["id"],
-        "name":       user["name"],
-        "headline":   user["headline"],
-        "avatar":     user["avatar"],
-        "company":    user["company"],
-        "skills":     user["skills"],
+        "id":user["id"],
+        "name": user["name"],
+        "headline": user["headline"],
+        "avatar": user["avatar"],
+        "company":user["company"],
+        "skills":user["skills"],
         "connections": len(user["connections"])
     })
 
@@ -123,9 +123,9 @@ def stories():
     has_prev = story_list.current.prev is not None
 
     return jsonify({
-        "index":    index,
-        "has_next": has_next,
-        "has_prev": has_prev,
+        "index": index,
+        "has_next":has_next,
+        "has_prev":has_prev,
         "post": {
             **current,
             "timestamp": current["timestamp"].strftime("%B %d, %Y")
@@ -203,7 +203,7 @@ def feed():
         post_list=fresh_posts
     )
 
-    n           = len(ranked)
+    n = len(ranked)
     theoretical = round(n * math.log2(n), 1) if n > 1 else 0
 
     for post in ranked:
@@ -221,14 +221,14 @@ def feed():
     return jsonify({
         "posts": ranked,
         "stats": {
-            "n":           n,
-            "comparisons": comparisons,
+            "n":n,
+            "comparisons":comparisons,
             "theoretical": theoretical,
-            "elapsed_ms":  elapsed,
-            "algorithm":   "Merge Sort",
-            "complexity":  "O(n log n)",
-            "formula":     "engagement + network boost + shared-skill boost - recency penalty",
-            "context":     "LinkedIn-style professional feed ranking"
+            "elapsed_ms": elapsed,
+            "algorithm": "Merge Sort",
+            "complexity": "O(n log n)",
+            "formula": "engagement + network boost + shared-skill boost - recency penalty",
+            "context":"LinkedIn-style professional feed ranking"
         }
     })
 
