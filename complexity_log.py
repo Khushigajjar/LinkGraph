@@ -71,7 +71,7 @@ def log_complexity(key, **metrics):
 
     line = "-" * 52
     print(f"\n{line}", flush=True)
-    print(f"  {info['name']}", flush=True)
+    print(f"{info['name']}", flush=True)
     print(f"  Time:  {info['time']}", flush=True)
     print(f"  Space: {info['space']}", flush=True)
     if metrics:
