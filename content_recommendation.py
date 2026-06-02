@@ -61,7 +61,7 @@ def find_similar_users(user_id):
         j = i - 1
         while j >= 0 and similarities[j]["similarity"] < key["similarity"]:
             similarities[j + 1] = similarities[j]
-            j -= 1
+            j = j - 1
         similarities[j + 1] = key
 
     return similarities
