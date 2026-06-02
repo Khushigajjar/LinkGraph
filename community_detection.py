@@ -116,7 +116,7 @@ def find_skill_clusters(threshold=0.4):
 
 def find_influence_hubs():
     user_ids = sorted(users.keys())
-    n        = len(user_ids)
+    n = len(user_ids)
 
     
     id_to_index = {uid: i for i, uid in enumerate(user_ids)}
