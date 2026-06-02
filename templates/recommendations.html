@@ -11,7 +11,6 @@
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
 
@@ -33,10 +32,10 @@
 
 <div class="layout">
 
-  <!-- LEFT: Main content -->
+
   <div>
 
-    <!-- Page header -->
+
     <div class="page-header">
       <div>
         <div class="page-title">Recommended for You</div>
@@ -44,14 +43,13 @@
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="section-tabs">
       <button class="section-tab active" onclick="switchTab('posts', this)">Recommended Posts</button>
       <button class="section-tab" onclick="switchTab('similar', this)">Similar Users</button>
       <button class="section-tab" onclick="switchTab('trending', this)">Trending Now</button>
     </div>
 
-    <!-- Posts tab -->
+
     <div id="tab-posts">
       <div id="posts-container">
         <div class="post-card" style="opacity:1">
@@ -79,36 +77,16 @@
       </div>
     </div>
 
-    <!-- Similar users tab -->
+  
     <div id="tab-similar" style="display:none">
       <div id="similar-container"></div>
     </div>
 
-    <!-- Trending tab -->
     <div id="tab-trending" style="display:none">
       <div id="trending-container"></div>
     </div>
 
   </div>
-
-
-  <!-- RIGHT: Sidebar -->
-  <aside>
-
-    <!-- User switcher -->
-    <div class="card">
-      <div class="sidebar-section">
-        <div id="user-list"></div>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Your skills</div>
-        <div class="my-skills" id="my-skills"></div>
-      </div>
-    </div>
-
-  </aside>
-
 </div>
 
 
@@ -120,7 +98,7 @@
   async function init() {
     const res = await fetch('/users');
     allUsers  = await res.json();
-    renderUserSwitcher(allUsers);
+    
     await selectUser(1);
 
     const meRes = await fetch('/me');
@@ -132,37 +110,24 @@
     if (navAvatar) navAvatar.src = me.avatar;
   }
 
-  function renderUserSwitcher(users) {
-    const container = document.getElementById('user-list');
-    container.innerHTML = users.map(u => `
-      <button class="user-pill ${u.id === currentUserId ? 'active' : ''}"
-              id="pill-${u.id}" onclick="selectUser(${u.id})">
-        <img src="${u.avatar}" alt="${u.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0077B5&color=fff&size=64'">
-        <div>
-          <div class="pill-name">${u.name}</div>
-          <div class="pill-company">${u.company}</div>
-        </div>
-      </button>
-    `).join('');
-  }
-
+  
   async function selectUser(userId) {
-    currentUserId = userId;
+  currentUserId = userId;
 
-    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('active'));
-    const pill = document.getElementById(`pill-${userId}`);
-    if (pill) pill.classList.add('active');
+  const user = allUsers.find(u => u.id === userId);
 
-    // show skills
-    const user = allUsers.find(u => u.id === userId);
-    if (user) {
-      document.getElementById('my-skills').innerHTML =
-        user.skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+  if (user) {
+    const skillsEl = document.getElementById('my-skills');
+
+    if (skillsEl) {
+      skillsEl.innerHTML = user.skills
+        .map(s => `<span class="skill-tag">${s}</span>`)
+        .join('');
     }
-
-    await loadCurrentTab();
   }
+
+  await loadCurrentTab();
+}
 
   function switchTab(tab, btn) {
     currentTab = tab;
@@ -182,7 +147,7 @@
     if (currentTab === 'trending') await loadTrending();
   }
 
-  // ── Recommended posts ──────────────────────────────────
+  // ──────────────────────────────────── Recommended posts ──────────────────────────────────
   async function loadRecommendations() {
     const container = document.getElementById('posts-container');
     container.innerHTML = skeletonPost() + skeletonPost();
@@ -244,7 +209,7 @@
     });
   }
 
-  // ── Similar users ──────────────────────────────────────
+  // ──────────────────────────────────── Similar users ──────────────────────────────────────
   async function loadSimilarUsers() {
     const container = document.getElementById('similar-container');
     container.innerHTML = '<div class="post-card" style="opacity:1"><div class="skeleton" style="width:60%"></div><div class="skeleton" style="width:40%"></div></div>';
@@ -287,12 +252,12 @@
     });
   }
 
-  // ── Trending posts ─────────────────────────────────────
+  // ──────────────────────────────────── Trending posts ──────────────────────────────────────
   async function loadTrending() {
     const container = document.getElementById('trending-container');
     container.innerHTML = skeletonPost();
 
-    // reuse feed endpoint because it is already sorted by professional score
+    
     const res   = await fetch('/feed');
     const data  = await res.json();
     const top3  = (data.posts || []).slice(0, 3);
@@ -343,7 +308,6 @@
     });
   }
 
-  // ── Skeleton helper ────────────────────────────────────
   function skeletonPost() {
     return `
       <div class="post-card" style="opacity:1">

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkGraph — Live Algorithmic Simulation Dashboard</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f2ef;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 320px;
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+        #network-container {
+            flex-grow: 1;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+        h2 { color: #0A66C2; margin-top: 0; font-size: 22px; border-bottom: 2px solid #f3f2ef; padding-bottom: 10px; }
+        h3 { color: #333; margin-bottom: 5px; font-size: 16px; }
+        .instruction-box {
+            background-color: #e7f3ff;
+            color: #004182;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0A66C2;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .skill-tag {
+            display: inline-block;
+            background: #e1f5fe;
+            color: #0288d1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin: 2px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>LinkGraph Engine</h2>
+        <div class="instruction-box" id="status-box">
+            <strong>Live Demo Guide:</strong><br>Click on any user node in the network to simulate our backend BFS/DFS algorithms live!
+        </div>
+        
+        <div id="analytics-panel" style="display: none;">
+            <h3>Active Profile Node</h3>
+            <div class="metric-card">
+                <strong id="user-name" style="font-size: 16px; color:#0A66C2;">-</strong><br>
+                <span id="user-headline" style="color:#555; font-style:italic;">-</span><br>
+                <strong>Company:</strong> <span id="user-company">-</span>
+            </div>
+
+            <h3>Module 3: Community Context</h3>
+            <div class="metric-card">
+                <strong>Detected Cluster:</strong> <span id="user-cluster">-</span><br>
+                <div id="user-skills" style="margin-top: 5px;"></div>
+            </div>
+
+            <h3>Module 1 & 2: Real-time Recommendations</h3>
+            <div class="metric-card" style="border-left: 4px solid #ff5722;">
+                <strong>BFS Calculated Paths:</strong><br>
+                <span id="rec-summary" style="color: #d84315; font-weight:bold;">-</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="network-container"></div>
+
+    <script>
+        // TARGET DATASETS DETACHED DIRECTLY FROM RAW USER DATASET
+        const dataset = {
+          "users": [
+            { "id": 1, "name": "Alex Morgan", "headline": "Data Product Manager | AI Strategy", "company": "Microsoft", "skills": ["Product Management", "Data Analytics", "AI Strategy", "Stakeholder Management"], "connections": [2, 3, 5, 8, 10, 14] },
+            { "id": 2, "name": "Priya Shah", "headline": "Talent Acquisition Lead | Employer Branding", "company": "LinkedIn", "skills": ["Talent Acquisition", "Employer Branding", "People Analytics", "Networking"], "connections": [1, 4, 6, 8, 12, 15] },
+            { "id": 3, "name": "Marcus Lee", "headline": "Machine Learning Engineer | Recommendations", "company": "Google", "skills": ["Machine Learning", "Python", "Recommendation Systems", "Graphs"], "connections": [1, 5, 7, 10, 13] },
+            { "id": 4, "name": "Sofia Garcia", "headline": "UX Researcher | Professional Platforms", "company": "Meta", "skills": ["UX Research", "User Interviews", "Product Strategy", "Networking"], "connections": [2, 6, 9, 11, 15] },
+            { "id": 5, "name": "Ethan Brooks", "headline": "Cloud Solutions Architect | Enterprise Systems", "company": "Amazon", "skills": ["AWS", "Cloud Architecture", "DevOps", "Stakeholder Management"], "connections": [1, 3, 7, 8, 14] },
+            { "id": 6, "name": "Maya Patel", "headline": "People Analytics Consultant | Workforce Insights", "company": "Deloitte", "skills": ["People Analytics", "SQL", "Data Analytics", "Talent Acquisition"], "connections": [2, 4, 9, 12, 15] },
+            { "id": 7, "name": "Noah Kim", "headline": "Backend Engineer | Graph APIs", "company": "GitHub", "skills": ["Python", "Flask", "Graph Algorithms", "API Design"], "connections": [3, 5, 10, 13, 14] },
+            { "id": 8, "name": "Emma Wilson", "headline": "Business Analyst | Growth and Partnerships", "company": "Salesforce", "skills": ["Business Analytics", "Stakeholder Management", "CRM", "Networking"], "connections": [1, 2, 5, 11, 12] },
+            { "id": 9, "name": "Liam Chen", "headline": "Product Designer | Career Experiences", "company": "Adobe", "skills": ["Product Design", "UX Research", "Design Systems", "User Interviews"], "connections": [4, 6, 11, 13, 15] },
+            { "id": 10, "name": "Aisha Khan", "headline": "Data Scientist | Network Growth Models", "company": "Spotify", "skills": ["Data Science", "Machine Learning", "Graphs", "Python"], "connections": [1, 3, 7, 14] },
+            { "id": 11, "name": "Daniel Reed", "headline": "Customer Success Manager | B2B Communities", "company": "HubSpot", "skills": ["Customer Success", "CRM", "Community Building", "Stakeholder Management"], "connections": [4, 8, 9, 12, 15] },
+            { "id": 12, "name": "Grace Taylor", "headline": "HR Business Partner | Learning Programs", "company": "Accenture", "skills": ["Learning Programs", "People Analytics", "Employer Branding", "Community Building"], "connections": [2, 6, 8, 11, 15] },
+            { "id": 13, "name": "Olivia Brown", "headline": "Frontend Engineer | Design Systems", "company": "Canva", "skills": ["React", "Design Systems", "API Design", "Product Design"], "connections": [3, 7, 9, 14] },
+            { "id": 14, "name": "Ravi Nair", "headline": "Cybersecurity Analyst | Cloud Risk", "company": "IBM", "skills": ["Cybersecurity", "Cloud Architecture", "DevOps", "Risk Management"], "connections": [1, 5, 7, 10, 13] },
+            { "id": 15, "name": "Chen Wu", "headline": "Marketing Strategist | Professional Communities", "company": "Atlassian", "skills": ["Employer Branding", "Community Building", "Product Strategy", "Networking"], "connections": [2, 4, 6, 9, 11, 12] }
+          ]
+        };
+
+        // GLOBAL CONFIGURATION CONFIG MAPS
+        const clusterColors = {
+            "AI & Data Intelligence": { background: '#ece0f2', border: '#7B2D8B', color: '#7B2D8B' },
+            "Cloud & Infrastructure": { background: '#e2f3eb', border: '#057642', color: '#057642' },
+            "Product Strategy & UX": { background: '#fcebe6', border: '#B24020', color: '#B24020' },
+            "Talent & Corporate Growth": { background: '#e7f3ff', border: '#0A66C2', color: '#0A66C2' }
+        };
+
+        function getCommunity(skills) {
+            if (skills.some(s => ["Machine Learning", "Data Science", "Python", "Graphs"].includes(s))) return "AI & Data Intelligence";
+            if (skills.some(s => ["Cloud Architecture", "Backend Engineer", "Flask", "DevOps", "Cybersecurity"].includes(s))) return "Cloud & Infrastructure";
+            if (skills.some(s => ["UX Research", "Product Design", "Design Systems"].includes(s))) return "Product Strategy & UX";
+            return "Talent & Corporate Growth";
+        }
+
+        // INITIALIZE COMPONENT NODES & SOLID EDGES
+        let nodesArray = [];
+        let edgesArray = [];
+        let connectionMap = {};
+
+        dataset.users.forEach(user => {
+            const group = getCommunity(user.skills);
+            connectionMap[user.id] = new Set(user.connections);
+            
+            nodesArray.push({
+                id: user.id,
+                label: user.name,
+                title: user.headline,
+                color: clusterColors[group],
+                shape: 'dot',
+                size: 22,
+                font: { size: 14, face: 'Arial', color: '#333333' },
+                originalColor: clusterColors[group],
+                userMeta: user,
+                clusterGroup: group
+            });
+
+            user.connections.forEach(connId => {
+                if (user.id < connId) { // Prevent redundant bidirectional drawings
+                    edgesArray.push({
+                        id: `base-${user.id}-${connId}`,
+                        from: user.id,
+                        to: connId,
+                        color: { color: '#cfd8dc', highlight: '#0A66C2' },
+                        width: 1.5,
+                        isBase: true
+                    });
+                }
+            });
+        });
+
+        const nodes = new vis.DataSet(nodesArray);
+        const edges = new vis.DataSet(edgesArray);
+
+        const container = document.getElementById('network-container');
+        const graphData = { nodes: nodes, edges: edges };
+        const options = {
+            physics: { barnesHut: { gravity: -4000, centralGravity: 0.15, springLength: 140 } },
+            interaction: { hover: true, selectConnectedEdges: false }
+        };
+
+        const network = new vis.Network(container, graphData, options);
+
+        // -------------------------------------------------------------------------
+        // DYNAMIC INTERACTION LOGIC (RUNS LIVE ALGORITHMS ON CLICK)
+        // -------------------------------------------------------------------------
+        network.on("selectNode", function (params) {
+            const selectedId = params.nodes[0];
+            const activeNode = nodes.get(selectedId);
+            const userMeta = activeNode.userMeta;
+            
+            // 1. Reveal Sidebar Stats
+            document.getElementById('status-box').innerHTML = `<strong>⚡ Live Engine Running:</strong> Tracing BFS paths and community graphs for ${userMeta.name}!`;
+            document.getElementById('analytics-panel').style.display = 'block';
+            document.getElementById('user-name').innerText = userMeta.name;
+            document.getElementById('user-headline').innerText = userMeta.headline;
+            document.getElementById('user-company').innerText = userMeta.company;
+            document.getElementById('user-cluster').innerText = activeNode.clusterGroup;
+            
+            const skillDiv = document.getElementById('user-skills');
+            skillDiv.innerHTML = '';
+            userMeta.skills.forEach(s => {
+                skillDiv.innerHTML += `<span class="skill-tag">${s}</span>`;
+            });
+
+            // 2. LIVE BFS RECOMMENDATION TRAVERSAL (Friends of Friends Heuristic)
+            const myFriends = connectionMap[selectedId];
+            let recommendations = {};
+
+            myFriends.forEach(friendId => {
+                if (connectionMap[friendId]) {
+                    connectionMap[friendId].forEach(fofId => {
+                        if (fofId !== selectedId && !myFriends.has(fofId)) {
+                            recommendations[fofId] = (recommendations[fofId] || 0) + 1;
+                        }
+                    });
+                }
+            });
+
+            // Clean previous recommendation edges from the map layer
+            const currentEdges = edges.get();
+            currentEdges.forEach(edge => {
+                if (!edge.isBase) edges.remove(edge.id);
+            });
+
+            // 3. GRAPH HIGHLIGHTING AND NEW EDGE INJECTIONS
+            let recSummaryText = "";
+            let recCount = 0;
+
+            // Highlight matching connection branches, dim remaining graph nodes out
+            const updatedNodes = nodesArray.map(node => {
+                let colorSetting = { ...node.originalColor };
+                if (node.id === selectedId) {
+                    // Accentuate target active node
+                    return { ...node, size: 30, color: colorSetting };
+                } else if (myFriends.has(node.id)) {
+                    // Keep 1st degree connections vibrant
+                    return { ...node, size: 22, color: colorSetting };
+                } else if (recommendations[node.id]) {
+                    // Inject a recommendation link edge live on screen
+                    recCount++;
+                    const mutuals = recommendations[node.id];
+                    const targetName = node.label;
+                    recSummaryText += `➔ Suggest connecting with <strong>${targetName}</strong> (${mutuals} mutual friends)<br>`;
+                    
+                    edges.add({
+                        from: selectedId,
+                        to: node.id,
+                        color: { color: '#ff5722', width: 3 },
+                        style: 'dashed',
+                        dasharray: [5, 5],
+                        label: 'Rec Link',
+                        font: { size: 11, color: '#ff5722', align: 'top' },
+                        isBase: false
+                    });
+
+                    return { ...node, size: 24, color: { background: '#ffe0b2', border: '#ff5722' } };
+                } else {
+                    // Dim unrelated elements out of focal plane
+                    return { ...node, size: 16, color: { background: '#f5f5f5', border: '#e0e0e0', color: '#cccccc' } };
+                }
+            });
+            nodes.update(updatedNodes);
+            
+            document.getElementById('rec-summary').innerHTML = recCount > 0 ? recSummaryText : "Network saturated. No new 2nd degree nodes found.";
+        });
+
+        // RESET MAP TO BASELINE ON BLANK DESELECT
+        network.on("deselectNode", function (params) {
+            document.getElementById('status-box').innerHTML = `<strong>💡 Live Demo Guide:</strong> Click on any user node in the network to simulate our backend BFS/DFS algorithms live!`;
+            document.getElementById('analytics-panel').style.display = 'none';
+            
+            // Revert configuration settings back to default core matrices
+            nodes.update(nodesArray);
+            const currentEdges = edges.get();
+            currentEdges.forEach(edge => {
+                if (!edge.isBase) edges.remove(edge.id);
+            });
+        });
+    </script>
+</body>
+</html>
