@@ -1,0 +1,575 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alex Morgan",
+      "headline": "Data Product Manager | AI Strategy",
+      "company": "Microsoft",
+      "avatar": "https://ui-avatars.com/api/?name=Alex+Morgan&background=0A66C2&color=fff",
+      "skills": [
+        "Product Management",
+        "Data Analytics",
+        "AI Strategy",
+        "Stakeholder Management"
+      ],
+      "connections": [
+        2,
+        3,
+        5,
+        8,
+        10,
+        14
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Priya Shah",
+      "headline": "Talent Acquisition Lead | Employer Branding",
+      "company": "LinkedIn",
+      "avatar": "https://ui-avatars.com/api/?name=Priya+Shah&background=057642&color=fff",
+      "skills": [
+        "Talent Acquisition",
+        "Employer Branding",
+        "People Analytics",
+        "Networking"
+      ],
+      "connections": [
+        1,
+        4,
+        6,
+        8,
+        12,
+        15
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Marcus Lee",
+      "headline": "Machine Learning Engineer | Recommendations",
+      "company": "Google",
+      "avatar": "https://ui-avatars.com/api/?name=Marcus+Lee&background=7B2D8B&color=fff",
+      "skills": [
+        "Machine Learning",
+        "Python",
+        "Recommendation Systems",
+        "Graphs"
+      ],
+      "connections": [
+        1,
+        5,
+        7,
+        10,
+        13
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Sofia Garcia",
+      "headline": "UX Researcher | Professional Platforms",
+      "company": "Meta",
+      "avatar": "https://ui-avatars.com/api/?name=Sofia+Garcia&background=B24020&color=fff",
+      "skills": [
+        "UX Research",
+        "User Interviews",
+        "Product Strategy",
+        "Networking"
+      ],
+      "connections": [
+        2,
+        6,
+        9,
+        11,
+        15
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Ethan Brooks",
+      "headline": "Cloud Solutions Architect | Enterprise Systems",
+      "company": "Amazon",
+      "avatar": "https://ui-avatars.com/api/?name=Ethan+Brooks&background=0096A0&color=fff",
+      "skills": [
+        "AWS",
+        "Cloud Architecture",
+        "DevOps",
+        "Stakeholder Management"
+      ],
+      "connections": [
+        1,
+        3,
+        7,
+        8,
+        14
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Maya Patel",
+      "headline": "People Analytics Consultant | Workforce Insights",
+      "company": "Deloitte",
+      "avatar": "https://ui-avatars.com/api/?name=Maya+Patel&background=0A66C2&color=fff",
+      "skills": [
+        "People Analytics",
+        "SQL",
+        "Data Analytics",
+        "Talent Acquisition"
+      ],
+      "connections": [
+        2,
+        4,
+        9,
+        12,
+        15
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Noah Kim",
+      "headline": "Backend Engineer | Graph APIs",
+      "company": "GitHub",
+      "avatar": "https://ui-avatars.com/api/?name=Noah+Kim&background=057642&color=fff",
+      "skills": [
+        "Python",
+        "Flask",
+        "Graph Algorithms",
+        "API Design"
+      ],
+      "connections": [
+        3,
+        5,
+        10,
+        13,
+        14
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Emma Wilson",
+      "headline": "Business Analyst | Growth and Partnerships",
+      "company": "Salesforce",
+      "avatar": "https://ui-avatars.com/api/?name=Emma+Wilson&background=7B2D8B&color=fff",
+      "skills": [
+        "Business Analytics",
+        "Stakeholder Management",
+        "CRM",
+        "Networking"
+      ],
+      "connections": [
+        1,
+        2,
+        5,
+        11,
+        12
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Liam Chen",
+      "headline": "Product Designer | Career Experiences",
+      "company": "Adobe",
+      "avatar": "https://ui-avatars.com/api/?name=Liam+Chen&background=B24020&color=fff",
+      "skills": [
+        "Product Design",
+        "UX Research",
+        "Design Systems",
+        "User Interviews"
+      ],
+      "connections": [
+        4,
+        6,
+        11,
+        13,
+        15
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Aisha Khan",
+      "headline": "Data Scientist | Network Growth Models",
+      "company": "Spotify",
+      "avatar": "https://ui-avatars.com/api/?name=Aisha+Khan&background=0096A0&color=fff",
+      "skills": [
+        "Data Science",
+        "Machine Learning",
+        "Graphs",
+        "Python"
+      ],
+      "connections": [
+        1,
+        3,
+        7,
+        14
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Daniel Reed",
+      "headline": "Customer Success Manager | B2B Communities",
+      "company": "HubSpot",
+      "avatar": "https://ui-avatars.com/api/?name=Daniel+Reed&background=0A66C2&color=fff",
+      "skills": [
+        "Customer Success",
+        "CRM",
+        "Community Building",
+        "Stakeholder Management"
+      ],
+      "connections": [
+        4,
+        8,
+        9,
+        12,
+        15
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Grace Taylor",
+      "headline": "HR Business Partner | Learning Programs",
+      "company": "Accenture",
+      "avatar": "https://ui-avatars.com/api/?name=Grace+Taylor&background=057642&color=fff",
+      "skills": [
+        "Learning Programs",
+        "People Analytics",
+        "Employer Branding",
+        "Community Building"
+      ],
+      "connections": [
+        2,
+        6,
+        8,
+        11,
+        15
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Olivia Brown",
+      "headline": "Frontend Engineer | Design Systems",
+      "company": "Canva",
+      "avatar": "https://ui-avatars.com/api/?name=Olivia+Brown&background=7B2D8B&color=fff",
+      "skills": [
+        "React",
+        "Design Systems",
+        "API Design",
+        "Product Design"
+      ],
+      "connections": [
+        3,
+        7,
+        9,
+        14
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Ravi Nair",
+      "headline": "Cybersecurity Analyst | Cloud Risk",
+      "company": "IBM",
+      "avatar": "https://ui-avatars.com/api/?name=Ravi+Nair&background=B24020&color=fff",
+      "skills": [
+        "Cybersecurity",
+        "Cloud Architecture",
+        "DevOps",
+        "Risk Management"
+      ],
+      "connections": [
+        1,
+        5,
+        7,
+        10,
+        13
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Chen Wu",
+      "headline": "Marketing Strategist | Professional Communities",
+      "company": "Atlassian",
+      "avatar": "https://ui-avatars.com/api/?name=Chen+Wu&background=0096A0&color=fff",
+      "skills": [
+        "Employer Branding",
+        "Community Building",
+        "Product Strategy",
+        "Networking"
+      ],
+      "connections": [
+        2,
+        4,
+        6,
+        9,
+        11,
+        12
+      ]
+    }
+  ],
+  "posts": [
+    {
+      "id": 101,
+      "author_id": 1,
+      "content": "We are testing a professional feed ranking model that balances engagement, recency, and whether the author is already in your network.",
+      "likes": 186,
+      "comments": 42,
+      "shares": 24,
+      "timestamp": "2026-05-28T09:30:00",
+      "tags": [
+        "Product Management",
+        "AI Strategy",
+        "Data Analytics"
+      ]
+    },
+    {
+      "id": 102,
+      "author_id": 2,
+      "content": "Hiring teams can improve candidate discovery by combining shared skills, mutual connections, and employer-branding signals.",
+      "likes": 142,
+      "comments": 31,
+      "shares": 18,
+      "timestamp": "2026-05-28T11:10:00",
+      "tags": [
+        "Talent Acquisition",
+        "Employer Branding",
+        "Networking"
+      ]
+    },
+    {
+      "id": 103,
+      "author_id": 3,
+      "content": "Graph-based recommendation systems are powerful for professional networking because second-degree connections often reveal useful career paths.",
+      "likes": 224,
+      "comments": 57,
+      "shares": 39,
+      "timestamp": "2026-05-28T14:40:00",
+      "tags": [
+        "Recommendation Systems",
+        "Graphs",
+        "Machine Learning"
+      ]
+    },
+    {
+      "id": 104,
+      "author_id": 4,
+      "content": "In user interviews, professionals said they trust connection suggestions more when the platform explains the shared context behind each recommendation.",
+      "likes": 118,
+      "comments": 27,
+      "shares": 13,
+      "timestamp": "2026-05-27T16:15:00",
+      "tags": [
+        "UX Research",
+        "User Interviews",
+        "Networking"
+      ]
+    },
+    {
+      "id": 105,
+      "author_id": 5,
+      "content": "Cloud architecture discussions get better when product managers, engineers, and security teams stay connected before a launch.",
+      "likes": 96,
+      "comments": 22,
+      "shares": 16,
+      "timestamp": "2026-05-27T10:45:00",
+      "tags": [
+        "Cloud Architecture",
+        "DevOps",
+        "Stakeholder Management"
+      ]
+    },
+    {
+      "id": 106,
+      "author_id": 6,
+      "content": "People analytics can help a networking platform identify skill communities without exposing sensitive HR data.",
+      "likes": 156,
+      "comments": 36,
+      "shares": 21,
+      "timestamp": "2026-05-27T12:20:00",
+      "tags": [
+        "People Analytics",
+        "Data Analytics",
+        "SQL"
+      ]
+    },
+    {
+      "id": 107,
+      "author_id": 7,
+      "content": "A simple BFS traversal is enough to generate people-you-may-know suggestions from a professional graph.",
+      "likes": 171,
+      "comments": 34,
+      "shares": 26,
+      "timestamp": "2026-05-26T17:05:00",
+      "tags": [
+        "Graph Algorithms",
+        "Python",
+        "API Design"
+      ]
+    },
+    {
+      "id": 108,
+      "author_id": 8,
+      "content": "Partnership teams often rely on CRM context and mutual introductions before approaching a new professional lead.",
+      "likes": 88,
+      "comments": 19,
+      "shares": 11,
+      "timestamp": "2026-05-26T09:50:00",
+      "tags": [
+        "Business Analytics",
+        "CRM",
+        "Networking"
+      ]
+    },
+    {
+      "id": 109,
+      "author_id": 9,
+      "content": "Career product design should make network strength visible without making users feel scored or ranked as people.",
+      "likes": 132,
+      "comments": 29,
+      "shares": 17,
+      "timestamp": "2026-05-25T15:35:00",
+      "tags": [
+        "Product Design",
+        "UX Research",
+        "Design Systems"
+      ]
+    },
+    {
+      "id": 110,
+      "author_id": 10,
+      "content": "Network growth models work best when they reward meaningful professional relevance, not just raw activity.",
+      "likes": 205,
+      "comments": 48,
+      "shares": 31,
+      "timestamp": "2026-05-28T08:20:00",
+      "tags": [
+        "Data Science",
+        "Graphs",
+        "Machine Learning"
+      ]
+    },
+    {
+      "id": 111,
+      "author_id": 11,
+      "content": "B2B communities become more useful when customer success teams connect users with similar adoption challenges.",
+      "likes": 109,
+      "comments": 25,
+      "shares": 14,
+      "timestamp": "2026-05-25T11:00:00",
+      "tags": [
+        "Customer Success",
+        "Community Building",
+        "CRM"
+      ]
+    },
+    {
+      "id": 112,
+      "author_id": 12,
+      "content": "Learning programs should recommend mentors by skill overlap, role context, and shared communities.",
+      "likes": 147,
+      "comments": 33,
+      "shares": 19,
+      "timestamp": "2026-05-26T13:25:00",
+      "tags": [
+        "Learning Programs",
+        "People Analytics",
+        "Community Building"
+      ]
+    },
+    {
+      "id": 113,
+      "author_id": 13,
+      "content": "Design systems help professional-networking products keep job cards, profiles, and recommendation modules consistent.",
+      "likes": 91,
+      "comments": 18,
+      "shares": 12,
+      "timestamp": "2026-05-24T18:00:00",
+      "tags": [
+        "React",
+        "Design Systems",
+        "Product Design"
+      ]
+    },
+    {
+      "id": 114,
+      "author_id": 14,
+      "content": "Cloud risk reviews improve when security analysts can find the right infrastructure and product contacts quickly.",
+      "likes": 124,
+      "comments": 28,
+      "shares": 20,
+      "timestamp": "2026-05-27T08:55:00",
+      "tags": [
+        "Cybersecurity",
+        "Cloud Architecture",
+        "Risk Management"
+      ]
+    },
+    {
+      "id": 115,
+      "author_id": 15,
+      "content": "Professional communities need more than broad topics. The best groups form around shared goals, roles, and learning needs.",
+      "likes": 165,
+      "comments": 39,
+      "shares": 23,
+      "timestamp": "2026-05-28T16:10:00",
+      "tags": [
+        "Community Building",
+        "Employer Branding",
+        "Product Strategy"
+      ]
+    },
+    {
+      "id": 116,
+      "author_id": 3,
+      "content": "For our recommendation demo, cosine similarity creates a skill vector for each user before matching content from similar professionals.",
+      "likes": 137,
+      "comments": 30,
+      "shares": 17,
+      "timestamp": "2026-05-23T10:30:00",
+      "tags": [
+        "Recommendation Systems",
+        "Machine Learning",
+        "Python"
+      ]
+    },
+    {
+      "id": 117,
+      "author_id": 6,
+      "content": "A clean skill taxonomy makes people analytics much more useful for internal mobility and mentorship matching.",
+      "likes": 101,
+      "comments": 21,
+      "shares": 10,
+      "timestamp": "2026-05-22T14:00:00",
+      "tags": [
+        "People Analytics",
+        "Talent Acquisition",
+        "Learning Programs"
+      ]
+    },
+    {
+      "id": 118,
+      "author_id": 1,
+      "content": "When explaining a feed algorithm to stakeholders, a score breakdown is often more persuasive than a black-box ranking.",
+      "likes": 154,
+      "comments": 35,
+      "shares": 22,
+      "timestamp": "2026-05-24T09:20:00",
+      "tags": [
+        "Product Management",
+        "Stakeholder Management",
+        "AI Strategy"
+      ]
+    }
+  ],
+  "post_comments": [
+    {
+      "post_id": 103,
+      "user_id": 1,
+      "author_name": "Alex Morgan",
+      "content": "hgello",
+      "created_at": "May 30, 2026 08:09 PM"
+    },
+    {
+      "post_id": 103,
+      "user_id": 1,
+      "author_name": "Alex Morgan",
+      "content": "Good work Keep it up!!!",
+      "created_at": "Jun 01, 2026 08:55 AM"
+    }
+  ]
+}
