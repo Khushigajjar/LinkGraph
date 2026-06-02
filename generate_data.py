@@ -2,13 +2,16 @@ import random
 import json
 
 names = [
-    "Alex", "Emma", "Liam", "Noah", "Olivia", "Ava", "Sophia", "Mason",
-    "Isabella", "Lucas", "Mia", "Ethan", "Amelia", "Harper", "Evelyn",
-    "James", "Benjamin", "Charlotte", "Henry", "Jack", "William", "Elijah",
-    "Daniel", "Matthew", "Sebastian", "Leo", "Grace", "Hannah", "Zoe",
-    "Aria", "Rohan", "Priya", "Aarav", "Ishaan", "Meera", "Ananya",
-    "Karan", "Neha", "Aditya", "Sara", "Lina", "David", "Sophie",
-    "John", "Michael", "Emma2", "Chris", "Tom", "Anna", "Julia"
+    "Alex Morgan", "Emma Johnson", "Liam Smith", "Noah Williams", "Olivia Brown",
+    "Ava Jones", "Sophia Miller", "Mason Davis", "Isabella Garcia", "Lucas Martinez",
+    "Mia Rodriguez", "Ethan Wilson", "Amelia Anderson", "Harper Thomas", "Evelyn Taylor",
+    "James Moore", "Benjamin Jackson", "Charlotte White", "Henry Harris", "Jack Martin",
+    "William Thompson", "Elijah Lee", "Daniel Perez", "Matthew Clark", "Sebastian Lewis",
+    "Leo Walker", "Grace Hall", "Hannah Allen", "Zoe Young", "Aria King",
+    "Rohan Sharma", "Priya Patel", "Aarav Mehta", "Ishaan Verma", "Meera Iyer",
+    "Ananya Nair", "Karan Malhotra", "Neha Gupta", "Aditya Rao", "Sara Khan",
+    "Lina Kim", "David Scott", "Sophie Turner", "John Carter", "Michael Adams",
+    "Chris Evans", "Tom Baker", "Anna Schmidt", "Julia Rossi", "Emma Clark"
 ]
 
 skills_pool = [
@@ -87,7 +90,7 @@ posts = generate_posts(users)
 
 dataset = {"users": users, "posts": posts}
 
-with open("dataset_50.json", "w") as f:
+with open("dataset.json", "w") as f:
     json.dump(dataset, f, indent=2)
 
 print("Dataset generated!")
