@@ -347,9 +347,8 @@ async function acceptRequest(fromId) {
         body: JSON.stringify({ from_id: fromId, to_id: currentUserId })
     });
 
-    loadPendingRequests();  // refresh
-    loadSuggestions();      // BFS suggestions update automatically
-}
+    loadPendingRequests();  
+    loadSuggestions();      
 
 
 function skeletonCard() {
@@ -367,7 +366,7 @@ function skeletonCard() {
 
 
 
-// runs on page load — shows incoming requests
+// runs on page load 
 async function loadPendingRequests() {
     const res  = await fetch(`/connect/pending/${currentUserId}`);
     const data = await res.json();
@@ -400,8 +399,8 @@ async function acceptRequest(fromId) {
     });
     const data = await res.json();
     if (data.status === 'accepted') {
-        loadPendingRequests();   // refresh requests
-        loadSuggestions();       // refresh BFS — this person gone from suggestions
+        loadPendingRequests();   
+        loadSuggestions();    
     }
 }
 
