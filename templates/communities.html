@@ -43,58 +43,7 @@
       </div>
     </div>
 
-    <!-- Stats -->
-    <!-- COMMENTED OUT: connected components and influence hubs stats removed -->
-    <!--
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-box-num" id="stat-components">—</div>
-        <div class="stat-box-label">Connected components</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box-num" id="stat-clusters">—</div>
-        <div class="stat-box-label">Skill clusters</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box-num" id="stat-users">—</div>
-        <div class="stat-box-label">Total users</div>
-      </div>
-    </div>
-    -->
-
-    <!-- Skill Clusters stat only -->
-    <!-- <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-box-num" id="stat-clusters">—</div>
-        <div class="stat-box-label">Skill clusters</div>
-      </div>
-    </div> -->
-
-    <!-- COMMENTED OUT: tabs removed since only skill clusters are shown -->
-    <!--
-    <div class="section-tabs">
-      <button class="section-tab active" onclick="switchTab('components', this)">Connected Components</button>
-      <button class="section-tab" onclick="switchTab('clusters', this)">Skill Clusters</button>
-      <button class="section-tab" onclick="switchTab('hubs', this)">Influence Hubs</button>
-    </div>
-    -->
-
-    <!-- COMMENTED OUT: Connected Components tab -->
-    <!--
-    <div id="tab-components">
-      <div id="components-container">
-        <div class="component-card" style="opacity:1">
-          <div style="display:flex;gap:8px;margin-bottom:12px">
-            <div class="skeleton-avatar"></div>
-            <div class="skeleton-avatar"></div>
-            <div class="skeleton-avatar"></div>
-          </div>
-          <div class="skeleton" style="width:60%"></div>
-          <div class="skeleton" style="width:40%"></div>
-        </div>
-      </div>
-    </div>
-    -->
+   
 
     <!-- Skill Clusters tab (always visible) -->
     <div id="tab-clusters">
@@ -112,12 +61,7 @@
       </div>
     </div>
 
-    <!-- COMMENTED OUT: Influence Hubs tab -->
-    <!--
-    <div id="tab-hubs" style="display:none">
-      <div id="hubs-container"></div>
-    </div>
-    -->
+ 
 
   </div>
 
@@ -133,14 +77,6 @@
 
     const clusters = (communityData.skill_clusters || []).filter(cluster => cluster.length >= 2);
 
-    // COMMENTED OUT: connected components and hub stats
-    // const components = communityData.connected_components || [];
-    // const hubs       = communityData.influence_hubs       || [];
-    // document.getElementById('stat-components').textContent = components.length;
-    // document.getElementById('stat-users').textContent      = hubs.length;
-
-    // Update skill clusters stat only
-    // document.getElementById('stat-clusters').textContent = clusters.length;
 
     const meRes = await fetch('/me');
     if (meRes.status === 401) { window.location.href = '/login'; return; }
@@ -153,87 +89,6 @@
     renderClusters(clusters);
   }
 
-  // COMMENTED OUT: tab switcher no longer needed
-  /*
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-
-    document.getElementById('tab-components').style.display = tab === 'components' ? 'block' : 'none';
-    document.getElementById('tab-clusters').style.display   = tab === 'clusters'   ? 'block' : 'none';
-    document.getElementById('tab-hubs').style.display       = tab === 'hubs'       ? 'block' : 'none';
-
-    if (tab === 'components' && communityData) renderComponents(communityData.connected_components);
-    if (tab === 'clusters'   && communityData) renderClusters(communityData.skill_clusters);
-    if (tab === 'hubs'       && communityData) renderHubs(communityData.influence_hubs);
-  }
-  */
-
-  // COMMENTED OUT: Connected Components renderer
-  /*
-  function renderComponents(components) {
-    const container = document.getElementById('components-container');
-    container.innerHTML = '';
-
-    if (!components.length) {
-      container.innerHTML = '<div class="empty-state">No components found.</div>';
-      return;
-    }
-
-    components.forEach((component, idx) => {
-      const delay = idx * 80;
-      const el    = document.createElement('div');
-      el.className = 'component-card';
-      el.style.animationDelay = `${delay}ms`;
-
-      const avatarStack = component.slice(0, 4).map(u => `
-        <img src="${u.avatar}"
-             alt="${u.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=B24020&color=fff&size=64'">
-      `).join('');
-
-      const extra = component.length > 4
-        ? `<div class="avatar-count">+${component.length - 4}</div>`
-        : '';
-
-      const memberRows = component.map(u => `
-        <div class="member-row">
-          <img src="${u.avatar}"
-               alt="${u.name}"
-               onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=B24020&color=fff&size=72'">
-          <div class="member-info">
-            <div class="member-name">${u.name}</div>
-            <div class="member-headline">${u.headline}</div>
-            <div class="member-skills">
-              ${(u.skills || []).slice(0, 3).map(s =>
-                `<span class="skill-tag skill-orange">${s}</span>`
-              ).join('')}
-            </div>
-          </div>
-        </div>
-      `).join('');
-
-      el.innerHTML = `
-        <div class="component-header">
-          <div class="component-title">Component ${idx + 1}</div>
-          <span class="component-badge badge-component">${component.length} member${component.length !== 1 ? 's' : ''}</span>
-        </div>
-
-        <div class="avatar-stack">
-          ${avatarStack}${extra}
-        </div>
-
-        <div class="member-list">
-          ${memberRows}
-        </div>
-      `;
-
-      container.appendChild(el);
-    });
-  }
-  */
-
-  // ── Skill Clusters ─────────────────────────────────────
   function renderClusters(clusters) {
     const container = document.getElementById('clusters-container');
     container.innerHTML = '';
@@ -314,57 +169,6 @@
     });
   }
 
-  // COMMENTED OUT: Influence Hubs renderer
-  /*
-  function renderHubs(hubs) {
-    const container = document.getElementById('hubs-container');
-    container.innerHTML = '';
-
-    if (!hubs.length) {
-      container.innerHTML = '<div class="empty-state">No hub data available.</div>';
-      return;
-    }
-
-    const maxReach = Math.max(...hubs.map(h => h.network_reach), 1);
-
-    hubs.forEach((hub, idx) => {
-      const delay      = idx * 70;
-      const rankClass  = idx === 0 ? 'hub-rank-1' : idx === 1 ? 'hub-rank-2' : idx === 2 ? 'hub-rank-3' : 'hub-rank-n';
-      const barWidth   = ((hub.network_reach / maxReach) * 100).toFixed(0);
-
-      const el = document.createElement('div');
-      el.className = 'hub-card';
-      el.style.animationDelay = `${delay}ms`;
-      el.innerHTML = `
-        <div class="hub-rank ${rankClass}">${idx + 1}</div>
-
-        <img class="hub-avatar"
-             src="${hub.avatar}"
-             alt="${hub.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(hub.name)}&background=B24020&color=fff&size=96'">
-
-        <div class="hub-info">
-          <div class="hub-name">${hub.name}</div>
-          <div class="hub-headline">${hub.headline}</div>
-
-          <div class="reach-wrap">
-            <div class="reach-track">
-              <div class="reach-fill" style="width: ${barWidth}%"></div>
-            </div>
-            <span class="reach-score">${hub.network_reach} reach</span>
-          </div>
-
-          <div class="hub-stats">
-            <span><strong>${hub.direct_connections}</strong> direct</span>
-            <span><strong>${hub.network_reach}</strong> total reach</span>
-          </div>
-        </div>
-      `;
-
-      container.appendChild(el);
-    });
-  }
-  */
 
   init();
 </script>

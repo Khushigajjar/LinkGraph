@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- NAV -->
+
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
 
@@ -31,10 +31,9 @@
 
 <div class="layout">
 
-  <!-- LEFT: Main -->
+
   <div>
 
-    <!-- Page header -->
     <div class="page-header">
       <div>
         <div class="page-title">People You May Know</div>
@@ -42,7 +41,6 @@
       
     </div>
 
-    <!-- Stats row -->
     <div class="stats-row">
       <div class="stat-box">
         <div class="stat-box-num" id="stat-direct">—</div>
@@ -66,14 +64,13 @@
       </div>
     </div>
 
-    <!-- Tabs -->
+  
     <div class="section-tabs">
       <button class="section-tab active" onclick="switchTab('suggestions', this)">People You May Know</button>
       <button class="section-tab" onclick="switchTab('network', this)">My Network</button>
       <button class="section-tab" onclick="switchTab('skills', this)">Skill Matches</button>
     </div>
 
-    <!-- BFS suggestions tab -->
     <div id="tab-suggestions">
       <div id="suggestions-container">
         <div class="conn-card" style="opacity:1">
@@ -94,20 +91,16 @@
       </div>
     </div>
 
-    <!-- My network tab -->
     <div id="tab-network" style="display:none">
       <div id="network-container"></div>
     </div>
 
-    <!-- Skill matches tab -->
     <div id="tab-skills" style="display:none">
       <div id="skills-container"></div>
     </div>
 
   </div>
 
-
-  <!-- RIGHT: Sidebar -->
   <aside>
 
     <div class="card">
@@ -173,7 +166,7 @@ async function loadCurrentTab() {
   if (currentTab === 'skills')      await loadSkillMatches();
 }
 
-// ── BFS Suggestions ────────────────────────────────────
+
 async function loadSuggestions() {
   const container = document.getElementById('suggestions-container');
   container.innerHTML = skeletonCard() + skeletonCard();
@@ -231,12 +224,10 @@ async function loadSuggestions() {
   });
 }
 
-// ── My Network ─────────────────────────────────────────
 async function loadMyNetwork() {
   const container = document.getElementById('network-container');
   container.innerHTML = skeletonCard();
 
-  // get current user's profile to find their connections
   const res  = await fetch('/me');
   const me   = await res.json();
 
@@ -266,7 +257,6 @@ async function loadMyNetwork() {
   });
 }
 
-// ── Skill Matches ──────────────────────────────────────
 async function loadSkillMatches() {
   const container = document.getElementById('skills-container');
   container.innerHTML = skeletonCard();
@@ -339,19 +329,6 @@ async function handleConnect(btn, targetId) {
 
 
 
-// Accept
-async function acceptRequest(fromId) {
-    await fetch('/connect/accept', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from_id: fromId, to_id: currentUserId })
-    });
-
-    loadPendingRequests();  // refresh
-    loadSuggestions();      // BFS suggestions update automatically
-}
-
-
 function skeletonCard() {
   return `
     <div class="conn-card" style="opacity:1">
@@ -365,9 +342,6 @@ function skeletonCard() {
 
 }
 
-
-
-// runs on page load — shows incoming requests
 async function loadPendingRequests() {
     const res  = await fetch(`/connect/pending/${currentUserId}`);
     const data = await res.json();
@@ -400,8 +374,8 @@ async function acceptRequest(fromId) {
     });
     const data = await res.json();
     if (data.status === 'accepted') {
-        loadPendingRequests();   // refresh requests
-        loadSuggestions();       // refresh BFS — this person gone from suggestions
+        loadPendingRequests();   
+        loadSuggestions();       
     }
 }
 
@@ -414,9 +388,6 @@ async function rejectRequest(fromId) {
     loadPendingRequests();
 }
 
-
-
-init();
 </script>
 </body>
 </html>

@@ -260,7 +260,7 @@
     
     const res   = await fetch('/feed');
     const data  = await res.json();
-    const top3  = (data.posts || []).slice(0, 3);
+    const top3  = (data.posts || []).slice(0, 5);
 
     container.innerHTML = '';
     top3.forEach((post, index) => {

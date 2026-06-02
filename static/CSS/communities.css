@@ -130,28 +130,6 @@ nav {
     font-weight: 600;
   }
 
-  /* ── TABS ── */
-  /* COMMENTED OUT: tabs no longer needed since only skill clusters are shown */
-  /*
-  .section-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-
-  .section-tab {
-    padding: 7px 18px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--white);
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .section-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
-  */
-
-  /* ── STATS ROW ── */
   .stats-row { display: flex; gap: 12px; margin-bottom: 16px; }
 
   .stat-box {
@@ -166,7 +144,6 @@ nav {
   .stat-box-num   { font-size: 24px; font-weight: 700; color: var(--orange); }
   .stat-box-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  /* ── COMPONENT CARD ── */
   .component-card {
     background: var(--white);
     border: 1px solid var(--border);
@@ -211,8 +188,6 @@ nav {
     line-height: 1.45;
   }
 
-  /* COMMENTED OUT: component badge style no longer needed */
-  /* .badge-component { background: var(--orange-bg); color: var(--orange); } */
   .badge-cluster   { background: var(--purple-bg); color: var(--purple); }
 
   /* member list inside component */
@@ -257,8 +232,6 @@ nav {
     font-weight: 500;
   }
 
-  /* COMMENTED OUT: orange skill tag no longer needed */
-  /* .skill-orange  { background: var(--orange-bg); color: var(--orange); } */
   .skill-purple  { background: var(--purple-bg); color: var(--purple); }
   .skill-blue    { background: var(--blue-light); color: var(--blue); }
 
@@ -295,88 +268,6 @@ nav {
     border: 2px solid var(--white);
   }
 
-  /* COMMENTED OUT: hub card styles no longer needed */
-  /*
-  .hub-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    margin-bottom: 10px;
-    animation: fadeUp 0.35s ease forwards;
-    opacity: 0;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .hub-rank {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .hub-rank-1 { background: #FFD700; color: #7a5900; }
-  .hub-rank-2 { background: #C0C0C0; color: #444; }
-  .hub-rank-3 { background: #CD7F32; color: white; }
-  .hub-rank-n { background: var(--bg); color: var(--muted); }
-
-  .hub-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-  }
-
-  .hub-info { flex: 1; min-width: 0; }
-  .hub-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-  .hub-headline { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-
-  .reach-wrap { display: flex; align-items: center; gap: 8px; }
-
-  .reach-track {
-    flex: 1;
-    height: 6px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .reach-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--orange), #E87040);
-    border-radius: 4px;
-    transition: width 0.7s ease;
-  }
-
-  .reach-score {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--orange);
-    white-space: nowrap;
-    min-width: 70px;
-    text-align: right;
-  }
-
-  .hub-stats {
-    display: flex;
-    gap: 14px;
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .hub-stat strong { color: var(--text); }
-  */
-
-  /* ── SIDEBAR ── */
   .card {
     background: var(--white);
     border: 1px solid var(--border);
