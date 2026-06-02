@@ -10,7 +10,7 @@ def top_cluster_skills(cluster, limit=3):
     return [skill for skill, _ in ranked[:limit]]
 
 def find_connected_components():
-    visited    = set()
+    visited = set()
     components = []   
 
     for user_id in users:
@@ -18,7 +18,7 @@ def find_connected_components():
             continue  
 
         component = []
-        stack     = [user_id]
+        stack = [user_id]
 
         while stack:
             current = stack.pop()   
@@ -39,12 +39,12 @@ def find_connected_components():
     for component in components:
         result.append([
             {
-                "id":       uid,
-                "name":     users[uid]["name"],
-                "avatar":   users[uid]["avatar"],
+                "id": uid,
+                "name":  users[uid]["name"],
+                "avatar": users[uid]["avatar"],
                 "headline": users[uid]["headline"],
-                "company":  users[uid]["company"],
-                "skills":   users[uid]["skills"]
+                "company":users[uid]["company"],
+                "skills": users[uid]["skills"]
             }
             for uid in component
         ])
@@ -99,12 +99,12 @@ def find_skill_clusters(threshold=0.4):
     for community_name, focus, cluster in clusters:
         result.append([
             {
-                "id":       uid,
-                "name":     users[uid]["name"],
-                "avatar":   users[uid]["avatar"],
+                "id": uid,
+                "name": users[uid]["name"],
+                "avatar": users[uid]["avatar"],
                 "headline": users[uid]["headline"],
-                "company":  users[uid]["company"],
-                "skills":   users[uid]["skills"],
+                "company": users[uid]["company"],
+                "skills": users[uid]["skills"],
                 "cluster_focus": focus,
                 "community_name": community_name,
                 "cluster_summary": "Members share " + ", ".join(focus[:3])
@@ -118,7 +118,7 @@ def find_influence_hubs():
     user_ids = sorted(users.keys())
     n        = len(user_ids)
 
-    # Map user_id → matrix index
+    
     id_to_index = {uid: i for i, uid in enumerate(user_ids)}
 
     matrix = [[0] * n for _ in range(n)]
@@ -133,8 +133,8 @@ def find_influence_hubs():
    
     scores = []
     for uid in user_ids:
-        i             = id_to_index[uid]
-        degree        = sum(matrix[i])  
+        i  = id_to_index[uid]
+        degree = sum(matrix[i])  
         second_degree = 0
 
         
@@ -143,14 +143,14 @@ def find_influence_hubs():
                 second_degree += sum(matrix[j])
 
         scores.append({
-            "id":             uid,
-            "name":           users[uid]["name"],
-            "avatar":         users[uid]["avatar"],
-            "headline":       users[uid]["headline"],
-            "company":        users[uid]["company"],
+            "id": uid,
+            "name":users[uid]["name"],
+            "avatar": users[uid]["avatar"],
+            "headline": users[uid]["headline"],
+            "company":  users[uid]["company"],
             "direct_connections":  degree,
-            "network_reach":  degree + second_degree,
-            "hub_reason":     "High second-degree reach across the professional graph"
+            "network_reach": degree + second_degree,
+            "hub_reason": "High second-degree reach across the professional graph"
         })
 
     scores.sort(key=lambda x: x["network_reach"], reverse=True)
@@ -159,6 +159,6 @@ def find_influence_hubs():
 def get_communities():
     return {
         "connected_components": find_connected_components(),
-        "skill_clusters":       find_skill_clusters(),
-        "influence_hubs":       find_influence_hubs()
+        "skill_clusters":find_skill_clusters(),
+        "influence_hubs":find_influence_hubs()
     }
