@@ -1,8 +1,6 @@
 from datetime import datetime
 from graph import enrich_posts
 
-# Professional feed score:
-# engagement + network boost + shared-skill boost - recency penalty
 
 
 def _normalise(value):
