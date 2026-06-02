@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Communities</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/templates/CSS/communities.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/communities.css') }}">
 
 </head>
 <body>
@@ -13,21 +13,16 @@
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
-  <div class="nav-links">
-    <a class="nav-link" href="/feed-page">Feed</a>
-    <a class="nav-link" href="/connections-page">Connections</a>
+
+  <div class="nav-center">
+    <a class="nav-link" href="/">Feed</a>
+    <a class="nav-link" href="/connections-page">Network</a>
     <a class="nav-link" href="/recommendations-page">Recommendations</a>
     <a class="nav-link active" href="/communities-page">Communities</a>
-    <a href="/logout" style="
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #666;
-  text-decoration: none;
-  border: 1px solid #E0DFDC;
-  font-family: DM Sans, sans-serif;
-">Sign out</a>
+  </div>
+
+  <div class="nav-right">
+    <a href="/logout" class="signout">Sign out</a>
   </div>
 </nav>
 
@@ -346,7 +341,7 @@
             <div class="reach-track">
               <div class="reach-fill" style="width: ${barWidth}%"></div>
             </div>
-            <span class="reach-score">${hub.network_reach} reach</span>
+            <span class="reach-count">${hub.network_reach} reach</span>
           </div>
 
           <div class="hub-stats">

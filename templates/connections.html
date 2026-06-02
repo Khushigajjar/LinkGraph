@@ -14,8 +14,8 @@
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
 
   <div class="nav-center">
-    <a class="nav-link" href="/feed-page">Feed</a>
-    <a class="nav-link active" href="/connections-page">Connections</a>
+    <a class="nav-link" href="/">Feed</a>
+    <a class="nav-link active" href="/connections-page">Network</a>
     <a class="nav-link" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
   </div>
@@ -73,7 +73,7 @@
       <button class="section-tab" onclick="switchTab('skills', this)">Skill Matches</button>
     </div>
 
-    <!-- BFS suggestions tab -->
+    <!-- Suggestions tab -->
     <div id="tab-suggestions">
       <div id="suggestions-container">
         <div class="conn-card" style="opacity:1">
@@ -173,7 +173,7 @@ async function loadCurrentTab() {
   if (currentTab === 'skills')      await loadSkillMatches();
 }
 
-// ── BFS Suggestions ────────────────────────────────────
+// ── Suggestions ─────────────────────────────────────────
 async function loadSuggestions() {
   const container = document.getElementById('suggestions-container');
   container.innerHTML = skeletonCard() + skeletonCard();
@@ -181,16 +181,16 @@ async function loadSuggestions() {
   const res  = await fetch('/suggestions');
   const data = await res.json();
 
-  const bfs = data.filter(s => s.source === 'network');
-  document.getElementById('stat-suggestions').textContent = bfs.length;
+  const networkSuggestions = data.filter(s => s.source === 'network');
+  document.getElementById('stat-suggestions').textContent = networkSuggestions.length;
 
-  if (!bfs.length) {
-    container.innerHTML = '<div class="empty-state">No BFS suggestions found.</div>';
+  if (!networkSuggestions.length) {
+    container.innerHTML = '<div class="empty-state">No suggestions found.</div>';
     return;
   }
 
   container.innerHTML = '';
-  bfs.forEach((person, index) => {
+  networkSuggestions.forEach((person, index) => {
     const delay    = index * 70;
     const mutuals  = person.mutual_friends || [];
     const sharedSkills = person.shared_skills || [];
@@ -348,7 +348,7 @@ async function acceptRequest(fromId) {
     });
 
     loadPendingRequests();  // refresh
-    loadSuggestions();      // BFS suggestions update automatically
+    loadSuggestions();      // suggestions update automatically
 }
 
 
@@ -401,7 +401,7 @@ async function acceptRequest(fromId) {
     const data = await res.json();
     if (data.status === 'accepted') {
         loadPendingRequests();   // refresh requests
-        loadSuggestions();       // refresh BFS — this person gone from suggestions
+        loadSuggestions();       // refresh suggestions
     }
 }
 

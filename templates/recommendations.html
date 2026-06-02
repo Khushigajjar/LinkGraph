@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkGraph — Recommendations</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/templates/CSS/recommendations.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/recommendations.css') }}">
 
  
 </head>
@@ -14,21 +14,16 @@
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">Link<span>Graph</span></a>
-  <div class="nav-links">
-    <a class="nav-link" href="/feed-page">Feed</a>
-    <a class="nav-link" href="/connections-page">Connections</a>
+
+  <div class="nav-center">
+    <a class="nav-link" href="/">Feed</a>
+    <a class="nav-link" href="/connections-page">Network</a>
     <a class="nav-link active" href="/recommendations-page">Recommendations</a>
     <a class="nav-link" href="/communities-page">Communities</a>
-    <a href="/logout" style="
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #666;
-  text-decoration: none;
-  border: 1px solid #E0DFDC;
-  font-family: DM Sans, sans-serif;
-">Sign out</a>
+  </div>
+
+  <div class="nav-right">
+    <a href="/logout" class="signout">Sign out</a>
   </div>
 </nav>
 
@@ -286,7 +281,7 @@
     const container = document.getElementById('trending-container');
     container.innerHTML = skeletonPost();
 
-    // reuse feed endpoint because it is already sorted by professional score
+    // reuse feed endpoint for demo trending posts
     const res   = await fetch('/feed');
     const data  = await res.json();
     const top3  = (data.posts || []).slice(0, 3);

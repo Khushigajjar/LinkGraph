@@ -66,6 +66,7 @@
     color: var(--muted);
     border: none;
     background: none;
+    text-decoration: none;
     transition: color 0.15s, background 0.15s;
     font-family: 'DM Sans', sans-serif;
   }
